@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="700.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.EngineController">
+   <children>
+      <Rectangle fx:id="game_rect" arcHeight="5.0" arcWidth="5.0" fill="#e8e8e8" height="600.0" layoutX="40.0" layoutY="70.0" stroke="BLACK" strokeLineCap="ROUND" strokeType="OUTSIDE" strokeWidth="7.0" width="750.0">
+         <effect>
+            <DropShadow />
+         </effect></Rectangle>
+      <Rectangle fx:id="menu_rect" arcHeight="5.0" arcWidth="5.0" fill="#cbcbcb" height="285.0" layoutX="830.0" layoutY="70.0" stroke="BLACK" strokeLineCap="ROUND" strokeWidth="5.0" width="225.0">
+         <effect>
+            <DropShadow />
+         </effect></Rectangle>
+      <Rectangle fx:id="menu_rect1" arcHeight="5.0" arcWidth="5.0" fill="#cbcbcb" height="285.0" layoutX="830.0" layoutY="385.0" stroke="BLACK" strokeLineCap="ROUND" strokeWidth="5.0" width="225.0">
+         <effect>
+            <DropShadow />
+         </effect></Rectangle>
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#838282" height="30.0" layoutX="37.0" layoutY="18.0" stroke="BLACK" strokeLineCap="ROUND" strokeType="OUTSIDE" strokeWidth="5.0" width="1014.0">
+         <effect>
+            <DropShadow />
+         </effect>
+      </Rectangle>
+      <Label layoutX="870.0" layoutY="78.0" text="New Objects">
+         <font>
+            <Font name="System Bold" size="25.0" />
+         </font>
+      </Label>
+      <Button fx:id="btn_triangle" layoutX="857.0" layoutY="124.0" mnemonicParsing="false" onAction="#selectTriangle" prefHeight="83.0" prefWidth="80.0">
+         <effect>
+            <DropShadow />
+         </effect>
+         <graphic>
+            <ImageView fitHeight="56.0" fitWidth="59.0" pickOnBounds="true">
+               <image>
+                  <Image url="@../Images/TriangleIcon.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Button>
+      <Button fx:id="btn_circle" layoutX="948.0" layoutY="124.0" mnemonicParsing="false" onAction="#selectCircle" prefHeight="83.0" prefWidth="80.0">
+         <effect>
+            <DropShadow />
+         </effect>
+         <graphic>
+            <ImageView fitHeight="56.0" fitWidth="59.0" pickOnBounds="true">
+               <image>
+                  <Image url="@../Images/CircleIcon.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Button>
+      <Button fx:id="btn_square" layoutX="857.0" layoutY="218.0" mnemonicParsing="false" onAction="#selectBox" prefHeight="83.0" prefWidth="80.0">
+         <effect>
+            <DropShadow />
+         </effect>
+         <graphic>
+            <ImageView fitHeight="63.0" fitWidth="65.0" pickOnBounds="true">
+               <image>
+                  <Image url="@../Images/SquareIcon.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Button>
+      <Button fx:id="btn_rotate_box" layoutX="948.0" layoutY="218.0" mnemonicParsing="false" onAction="#selectRotationBox" prefHeight="83.0" prefWidth="80.0">
+         <effect>
+            <DropShadow />
+         </effect>
+         <graphic>
+            <ImageView fitHeight="69.0" fitWidth="63.0" pickOnBounds="true">
+               <image>
+                  <Image url="@../Images/SquareRotateIcon.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Button>
+      <Button fx:id="btn_deselect" layoutX="857.0" layoutY="312.0" mnemonicParsing="false" onAction="#deselectButtons" prefHeight="25.0" prefWidth="175.0" text="Deselect">
+         <font>
+            <Font name="System Bold" size="15.0" />
+         </font>
+      </Button>
+      <Button layoutX="45.0" layoutY="20.0" mnemonicParsing="false" onAction="#deleteSelectedObject" text="Delete Current Object">
+         <font>
+            <Font name="System Bold" size="11.0" />
+         </font>
+         <effect>
+            <DropShadow />
+         </effect>
+      </Button>
+      <Button layoutX="997.0" layoutY="20.0" mnemonicParsing="false" onAction="#close" text="Close">
+         <font>
+            <Font name="System Bold" size="11.0" />
+         </font>
+         <effect>
+            <DropShadow />
+         </effect>
+      </Button>
+      <Button layoutX="187.0" layoutY="20.0" mnemonicParsing="false" onAction="#deleteAllObjects" text="Delete All Objects">
+         <font>
+            <Font name="System Bold" size="11.0" />
+         </font>
+         <effect>
+            <DropShadow />
+         </effect>
+      </Button>
+      <Button layoutX="601.0" layoutY="20.0" mnemonicParsing="false" onAction="#startSimulation" text="Start Simulation">
+         <font>
+            <Font name="System Bold" size="11.0" />
+         </font>
+         <effect>
+            <DropShadow />
+         </effect>
+      </Button>
+      <Button layoutX="710.0" layoutY="20.0" mnemonicParsing="false" onAction="#endSimulation" text="Stop Simulation">
+         <font>
+            <Font name="System Bold" size="11.0" />
+         </font>
+         <effect>
+            <DropShadow />
+         </effect>
+      </Button>
+      <Button layoutX="458.0" layoutY="20.0" mnemonicParsing="false" onAction="#selectCurrentObjectAsPlayer" text="Select Object as Player">
+         <font>
+            <Font name="System Bold" size="11.0" />
+         </font>
+         <effect>
+            <DropShadow />
+         </effect>
+      </Button>
+      <Label fx:id="label_simulate" layoutX="828.0" layoutY="18.0" text="Simulating..." visible="false">
+         <font>
+            <Font name="System Bold" size="20.0" />
+         </font>
+      </Label>
+      <AnchorPane fx:id="gamePane" layoutX="37.0" layoutY="67.0" prefHeight="607.0" prefWidth="757.0" />
+      <AnchorPane fx:id="propertyPane" layoutX="831.0" layoutY="384.0" prefHeight="290.0" prefWidth="224.0" visible="false">
+         <children>
+            <CheckBox fx:id="box_gravity" layoutX="21.0" layoutY="207.0" mnemonicParsing="false" text="Gravity">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </CheckBox>
+            <Label fx:id="label_X" layoutX="21.0" layoutY="85.0" text="X:">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <TextField fx:id="field_Y" layoutX="138.0" layoutY="83.0" prefHeight="14.0" prefWidth="54.0" />
+            <CheckBox fx:id="box_collidable" layoutX="21.0" layoutY="238.0" mnemonicParsing="false" text="Collidable">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </CheckBox>
+            <Label fx:id="label_Y" layoutX="113.0" layoutY="85.0" text="Y:">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="label_cords" layoutX="21.0" layoutY="57.0" text="Center Coordinates">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="label_dimensions" layoutX="20.0" layoutY="118.0" text="Dimensions">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="label_properties" layoutX="41.0" layoutY="14.0" text="Properties" textAlignment="CENTER">
+               <font>
+                  <Font name="System Bold" size="25.0" />
+               </font>
+            </Label>
+            <TextField fx:id="field_X" layoutX="44.0" layoutY="83.0" prefHeight="14.0" prefWidth="54.0" />
+            <Button fx:id="btn_save" layoutX="157.0" layoutY="228.0" mnemonicParsing="false" onAction="#modifySelectedElement" prefHeight="24.0" prefWidth="30.0">
+               <graphic>
+                  <ImageView fitHeight="25.0" fitWidth="33.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../Images/Haken.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Label fx:id="label_width" layoutX="21.0" layoutY="145.0" text="Width:">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="label_height" layoutX="21.0" layoutY="172.0" text="Height:">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <TextField fx:id="field_width" layoutX="100.0" layoutY="143.0" prefHeight="14.0" prefWidth="54.0" />
+            <TextField fx:id="field_height" layoutX="100.0" layoutY="171.0" prefHeight="14.0" prefWidth="54.0" />
+         </children></AnchorPane>
+      <AnchorPane fx:id="propertyPaneTri" layoutX="831.0" layoutY="384.0" prefHeight="290.0" prefWidth="224.0" visible="false">
+         <children>
+            <Label fx:id="label_properties1" layoutX="41.0" layoutY="14.0" text="Properties" textAlignment="CENTER">
+               <font>
+                  <Font name="System Bold" size="25.0" />
+               </font>
+            </Label>
+            <Label fx:id="label_properties11" layoutX="88.0" layoutY="67.0" text="X" textAlignment="CENTER">
+               <font>
+                  <Font name="System Bold" size="20.0" />
+               </font>
+            </Label>
+            <Label fx:id="label_properties111" layoutX="150.0" layoutY="67.0" text="Y" textAlignment="CENTER">
+               <font>
+                  <Font name="System Bold" size="20.0" />
+               </font>
+            </Label>
+            <Label fx:id="label_properties112" layoutX="35.0" layoutY="97.0" text="A:" textAlignment="CENTER">
+               <font>
+                  <Font name="System Bold" size="20.0" />
+               </font>
+            </Label>
+            <Label fx:id="label_properties1121" layoutX="35.0" layoutY="130.0" text="B:" textAlignment="CENTER">
+               <font>
+                  <Font name="System Bold" size="20.0" />
+               </font>
+            </Label>
+            <Label fx:id="label_properties11211" layoutX="35.0" layoutY="160.0" text="C:" textAlignment="CENTER">
+               <font>
+                  <Font name="System Bold" size="20.0" />
+               </font>
+            </Label>
+            <TextField fx:id="fieldAX" layoutX="67.0" layoutY="100.0" prefHeight="25.0" prefWidth="54.0" />
+            <TextField fx:id="fieldAY" layoutX="134.0" layoutY="100.0" prefHeight="25.0" prefWidth="54.0" />
+            <TextField fx:id="fieldBX" layoutX="67.0" layoutY="132.0" prefHeight="25.0" prefWidth="54.0" />
+            <TextField fx:id="fieldCX" layoutX="67.0" layoutY="163.0" prefHeight="25.0" prefWidth="54.0" />
+            <TextField fx:id="fieldBY" layoutX="134.0" layoutY="132.0" prefHeight="25.0" prefWidth="54.0" />
+            <TextField fx:id="fieldCY" layoutX="134.0" layoutY="163.0" prefHeight="25.0" prefWidth="54.0" />
+            <Button fx:id="btn_saveTri" layoutX="157.0" layoutY="228.0" mnemonicParsing="false" onAction="#modifySelectedElement" prefHeight="24.0" prefWidth="30.0">
+               <graphic>
+                  <ImageView fitHeight="25.0" fitWidth="33.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../Images/Haken.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+            <CheckBox fx:id="box_gravityTri" layoutX="21.0" layoutY="207.0" mnemonicParsing="false" text="Gravity">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </CheckBox>
+            <CheckBox fx:id="box_collidableTri" layoutX="21.0" layoutY="238.0" mnemonicParsing="false" text="Collidable">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </CheckBox>
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="propertyPaneRotBox" layoutX="831.0" layoutY="384.0" prefHeight="290.0" prefWidth="224.0">
+         <children>
+            <CheckBox fx:id="box_gravityRotRect" layoutX="21.0" layoutY="223.0" mnemonicParsing="false" text="Gravity">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </CheckBox>
+            <Label fx:id="label_X1" layoutX="21.0" layoutY="77.0" text="X:">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <TextField fx:id="field_YRotRect" layoutX="138.0" layoutY="77.0" prefHeight="14.0" prefWidth="54.0" />
+            <CheckBox fx:id="box_collidableRotRect" layoutX="21.0" layoutY="250.0" mnemonicParsing="false" text="Collidable">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </CheckBox>
+            <Label fx:id="label_Y1" layoutX="113.0" layoutY="77.0" text="Y:">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="label_cords1" layoutX="21.0" layoutY="50.0" text="Center Coordinates">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="label_dimensions1" layoutX="20.0" layoutY="110.0" text="Dimensions">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="label_properties2" layoutX="41.0" layoutY="10.0" text="Properties" textAlignment="CENTER">
+               <font>
+                  <Font name="System Bold" size="25.0" />
+               </font>
+            </Label>
+            <TextField fx:id="field_XRotRect" layoutX="44.0" layoutY="77.0" prefHeight="14.0" prefWidth="54.0" />
+            <Button layoutX="157.0" layoutY="240.0" mnemonicParsing="false" onAction="#modifySelectedElement" prefHeight="24.0" prefWidth="30.0">
+               <graphic>
+                  <ImageView fitHeight="25.0" fitWidth="33.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../Images/Haken.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Label fx:id="label_width1" layoutX="21.0" layoutY="135.0" text="Width:">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="label_height1" layoutX="21.0" layoutY="160.0" text="Height:">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <TextField fx:id="field_widthRotRect" layoutX="100.0" layoutY="132.0" prefHeight="14.0" prefWidth="54.0" />
+            <TextField fx:id="field_heightRotRect" layoutX="100.0" layoutY="158.0" prefHeight="14.0" prefWidth="54.0" />
+            <Label fx:id="label_height11" layoutX="21.0" layoutY="186.0" text="Angle:">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <TextField fx:id="field_angleRotRect" layoutX="100.0" layoutY="184.0" prefHeight="14.0" prefWidth="54.0" />
+         </children>
+      </AnchorPane>
+      <Button layoutX="309.0" layoutY="20.0" mnemonicParsing="false" onAction="#giveAllObjectsGravity" text="Give All Objects Gravity">
+         <font>
+            <Font name="System Bold" size="11.0" />
+         </font>
+         <effect>
+            <DropShadow />
+         </effect>
+      </Button>
+   </children>
+   <effect>
+      <DropShadow />
+   </effect>
+</AnchorPane>
