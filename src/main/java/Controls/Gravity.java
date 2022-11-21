@@ -14,6 +14,7 @@ public class Gravity {
         public Movable object;
         public Boolean applyGravity;
         public Boolean isCollidable;
+        public Boolean movedToCollidingObject;
         public int ticksSinceStart;
 
         public GravityObject(Movable object, Boolean applyGravity, Boolean isCollidable, int ticksSinceStart) {
@@ -21,6 +22,7 @@ public class Gravity {
             this.applyGravity = applyGravity;
             this.ticksSinceStart = ticksSinceStart;
             this.isCollidable = isCollidable;
+            movedToCollidingObject = false;
         }
     }
 
@@ -28,7 +30,9 @@ public class Gravity {
     private final double GRAVITY_CONSTANT = 0.1635; //60 FPS
     private double bottomYCord;
 
-    public Gravity(List<Movable> objects, List<Boolean> applyGravity, List<Boolean> collidable, double bottomYCord) {
+    public Gravity(List<Movable> objects, List<Boolean> applyGravity,
+                   List<Boolean> collidable, double bottomYCord) {
+
         if (objects.size() != applyGravity.size()) {
             throw new IllegalArgumentException("Sizes do not match!");
         }
@@ -54,13 +58,18 @@ public class Gravity {
         gravityObjects.add(new GravityObject(m, applyGravity, isCollidable,0));
     }
 
+    public void giveGravityAt(int index) {
+        gravityObjects.get(index).applyGravity = true;
+    }
+
     public void clear() {
         gravityObjects.clear();
     }
     public void updateElements(List<PhysicsObject> physicObjects) {
         gravityObjects.clear();
         for (int i = 0; i < physicObjects.size(); i++) {
-            add(physicObjects.get(i).object, physicObjects.get(i).hasGravity, physicObjects.get(i).isCollidable);
+            add(physicObjects.get(i).object, physicObjects.get(i).hasGravity,
+                    physicObjects.get(i).isCollidable);
         }
     }
 
@@ -98,6 +107,7 @@ public class Gravity {
                 if (!isColliding && active.getTop() < bottomYCord) {
                     active.move(new Vec2D(0, getDeltaS(gravityObjects.get(i).ticksSinceStart)));
                     increaseTicksAt(i);
+                    gravityObjects.get(i).movedToCollidingObject = false;
 
                 //Colliding with the bottom
                 } else if (active.getTop() >= bottomYCord){
@@ -107,10 +117,12 @@ public class Gravity {
                     }
 
                 //Colliding with another object
-                } else {
-                    resetTicksAt(i);
+                } else if (!gravityObjects.get(i).movedToCollidingObject
+                        && gravityObjects.get(collisionIndex).ticksSinceStart == 0){
                     moveToCollidingObject(active, gravityObjects.get(collisionIndex).object,
                             getDeltaS(gravityObjects.get(i).ticksSinceStart));
+                    resetTicksAt(i);
+                    gravityObjects.get(i).movedToCollidingObject = true;
                 }
             }
         }

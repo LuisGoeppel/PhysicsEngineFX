@@ -7,7 +7,7 @@ public class RotationBox2D extends Polygon2D {
 
     private Vec2D center;
     private double width, height;
-    private double rotationAngle;
+    private double rotationAngle; //in radians
 
     public RotationBox2D(Vec2D center, double width, double height, double rotationAngle) {
         this.center = center;
@@ -30,7 +30,6 @@ public class RotationBox2D extends Polygon2D {
         Vec2D base = new Vec2D(1, 0);
 
         rotationAngle = Math.acos(rot.dotProduct(base) / (rot.getLength() * base.getLength()));
-
     }
 
     public Vec2D getCenter() {

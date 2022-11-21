@@ -4,6 +4,7 @@ import Basics.*;
 import Controls.Gravity;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -52,17 +53,19 @@ public class EngineController {
     private AnchorPane propertyPane, propertyPaneTri, propertyPaneRotBox;
     private List<PhysicsObject> objects;
     private MovableObjectType selected;
-    private final double defaultSize = 70;
     private double currentSize;
+    private final double defaultSize = 70;
     private final double minSize = 10;
     private final double maxSize = 400;
     private final double playerSpeed = 10;
     private final double scrollIncreaseFactor = 7;
-    private int maxObjects = 15;
+    private int maxObjects = 25;
+    private boolean defaultGravity = false;
+    private boolean defaultCollidable = true;
     private int selectedElementIndex, playerElementIndex;
-    private Rectangle selectedRect;
-    private Circle selectedCircle;
-    private Polygon selectedPoly;
+    private Rectangle selectionRect;
+    private Circle selectionCircle;
+    private Polygon selectionPoly;
     private Vec2D currentMousePos;
     private Timer timer;
     private TimerTask task;
@@ -98,7 +101,8 @@ public class EngineController {
                         Vec2D bottomLeftBox = new Vec2D(x - currentSize/2, y - currentSize/2);
                         Box2D newBox = new Box2D(bottomLeftBox, currentSize, currentSize);
                         if (!collidesWithOtherObjects(newBox) && curShapeInsideGameRect()) {
-                            PhysicsObject object = new PhysicsObject(newBox, null, false, true);
+                            PhysicsObject object = new PhysicsObject(
+                                    newBox, null, defaultGravity, defaultCollidable);
                             objects.add(object);
                             gravity.add(object);
                         }
@@ -107,7 +111,8 @@ public class EngineController {
                         Vec2D center = new Vec2D(x, y);
                         Circle2D newCircle2D = new Circle2D(center, currentSize/2);
                         if (!collidesWithOtherObjects(newCircle2D) && curShapeInsideGameRect()) {
-                            PhysicsObject object = new PhysicsObject(newCircle2D, null, false, true);
+                            PhysicsObject object = new PhysicsObject(
+                                    newCircle2D, null, defaultGravity, defaultCollidable);
                             objects.add(object);
                             gravity.add(object);
                         }
@@ -118,7 +123,8 @@ public class EngineController {
                         Vec2D top = new Vec2D(x, y + currentSize/2);
                         Triangle2D newTri = new Triangle2D(bottomLeftTri, bottomRightTri, top);
                         if (!collidesWithOtherObjects(newTri) && curShapeInsideGameRect()) {
-                            PhysicsObject object = new PhysicsObject(newTri, null, false, true);
+                            PhysicsObject object = new PhysicsObject(
+                                    newTri, null, defaultGravity, defaultCollidable);
                             objects.add(object);
                             gravity.add(object);
                         }
@@ -126,13 +132,15 @@ public class EngineController {
                     case ROTATION_BOX:
                         RotationBox2D newBoxRot = new RotationBox2D(new Vec2D(x, y), currentSize, currentSize, 0);
                         if (!collidesWithOtherObjects(newBoxRot) && curShapeInsideGameRect()) {
-                            PhysicsObject object = new PhysicsObject(newBoxRot, null, false, true);
+                            PhysicsObject object = new PhysicsObject(
+                                    newBoxRot, null, defaultGravity, defaultCollidable);
                             objects.add(object);
                             gravity.add(object);
                         }
                         break;
                 }
             } else if (selected == null) {
+
                 boolean hasSelected = false;
                 for (int i = 0; i < objects.size(); i++) {
                     if (objects.get(i).object.contains(new Vec2D(mouseEvent.getX(), mouseEvent.getY()))) {
@@ -205,51 +213,36 @@ public class EngineController {
     @FXML
     public void selectBox() {
         selected = MovableObjectType.BOX;
-        selectedElementIndex = -1;
-        setSelectedNotVisible();
-        setBtnStyleDefault();
+        selectObjectTasks();
         btn_square.setStyle("-fx-background-color: " + selectedColor);
-        setPropertyPanesInvisible();
     }
 
     @FXML
     public void selectCircle() {
         selected = MovableObjectType.CIRCLE;
-        selectedElementIndex = -1;
-        setSelectedNotVisible();
-        setBtnStyleDefault();
+        selectObjectTasks();
         btn_circle.setStyle("-fx-background-color: " + selectedColor);
-        setPropertyPanesInvisible();
     }
 
     @FXML
     public void selectTriangle() {
         selected = MovableObjectType.TRIANGLE;
-        selectedElementIndex = -1;
-        setSelectedNotVisible();
-        setBtnStyleDefault();
+        selectObjectTasks();
         btn_triangle.setStyle("-fx-background-color: " + selectedColor);
-        setPropertyPanesInvisible();
     }
 
     @FXML
     public void selectRotationBox() {
         selected = MovableObjectType.ROTATION_BOX;
-        selectedElementIndex = -1;
-        setSelectedNotVisible();
-        setBtnStyleDefault();
+        selectObjectTasks();
         btn_rotate_box.setStyle("-fx-background-color: " + selectedColor);
-        setPropertyPanesInvisible();
     }
 
     @FXML
     public void deselectButtons() {
         modifySelectedElement();
         selected = null;
-        selectedElementIndex = -1;
-        setSelectedNotVisible();
-        setBtnStyleDefault();
-        setPropertyPanesInvisible();
+        selectObjectTasks();
     }
 
     @FXML
@@ -264,6 +257,7 @@ public class EngineController {
             }
             selectedElementIndex = -1;
             setPropertyPanesInvisible();
+            gravity.updateElements(objects);
         }
     }
 
@@ -274,16 +268,17 @@ public class EngineController {
         gravity.clear();
         selectedElementIndex = -1;
         playerElementIndex = -1;
-        gamePane.getChildren().add(selectedPoly);
-        gamePane.getChildren().add(selectedRect);
-        gamePane.getChildren().add(selectedCircle);
+        gamePane.getChildren().add(selectionPoly);
+        gamePane.getChildren().add(selectionRect);
+        gamePane.getChildren().add(selectionCircle);
         setPropertyPanesInvisible();
     }
 
     @FXML
     public void giveAllObjectsGravity() {
-        for (PhysicsObject o : objects) {
-            o.hasGravity = true;
+        for (int i = 0; i < objects.size(); i++) {
+            objects.get(i).hasGravity = true;
+            gravity.giveGravityAt(i);
         }
     }
 
@@ -308,6 +303,7 @@ public class EngineController {
     @FXML
     public void modifySelectedElement() {
         if (selectedElementIndex != -1) {
+
             switch (objects.get(selectedElementIndex).object.getObjectType()) {
                 case BOX:
                     Box2D currentBox = (Box2D) ((objects.get(selectedElementIndex).object));
@@ -380,20 +376,31 @@ public class EngineController {
         btn_triangle.setStyle("-fx-background-color: " + btnBackgroundColor);
     }
 
+    private void selectObjectTasks() {
+        selectedElementIndex = -1;
+        setSelectedNotVisible();
+        setBtnStyleDefault();
+        setPropertyPanesInvisible();
+    }
+
     private boolean collidesWithOtherObjects(Movable rhs) {
 
         for (PhysicsObject o : objects) {
-            if (!o.equals(rhs) && Utility.isColliding(o.object, rhs)) {
+            if (!o.equals(rhs) && o.isCollidable && Utility.isColliding(o.object, rhs)) {
                 return true;
             }
         }
         return false;
     }
 
-    private boolean collidesWithOtherObjects(Movable rhs, int indexNotToCheck) {
+    private boolean collidesWithOtherObjects(Movable rhs, int elementIndex) {
 
+        if (!objects.get(elementIndex).isCollidable) {
+            return false;
+        }
         for (int i = 0; i < objects.size(); i++) {
-            if (i != indexNotToCheck && Utility.isColliding(objects.get(i).object, rhs)) {
+            if (i != elementIndex && objects.get(i).isCollidable &&
+                    Utility.isColliding(objects.get(i).object, rhs)) {
                 return true;
             }
         }
@@ -429,55 +436,53 @@ public class EngineController {
     }
 
     private void initSelectionElements() {
-        selectedRect = new Rectangle();
-        selectedCircle = new Circle();
-        selectedPoly = new Polygon();
+        selectionRect = new Rectangle();
+        selectionCircle = new Circle();
+        selectionPoly = new Polygon();
 
-        selectedCircle.setStrokeWidth(2);
-        selectedCircle.setStroke(Color.GREY);
-        selectedCircle.setFill(transparent);
+        selectionCircle.setStrokeWidth(2);
+        selectionCircle.setStroke(Color.GREY);
+        selectionCircle.setFill(transparent);
 
-        selectedRect.setStrokeWidth(2);
-        selectedRect.setStroke(Color.GREY);
-        selectedRect.setFill(transparent);
+        selectionRect.setStrokeWidth(2);
+        selectionRect.setStroke(Color.GREY);
+        selectionRect.setFill(transparent);
 
-        selectedPoly.setStrokeWidth(2);
-        selectedPoly.setStroke(Color.GREY);
-        selectedPoly.setFill(transparent);
+        selectionPoly.setStrokeWidth(2);
+        selectionPoly.setStroke(Color.GREY);
+        selectionPoly.setFill(transparent);
 
         setSelectedNotVisible();
 
-        gamePane.getChildren().add(selectedCircle);
-        gamePane.getChildren().add(selectedRect);
-        gamePane.getChildren().add(selectedPoly);
+        gamePane.getChildren().add(selectionCircle);
+        gamePane.getChildren().add(selectionRect);
+        gamePane.getChildren().add(selectionPoly);
     }
 
     private void showSelectedElementOptions() {
         if (selectedElementIndex != -1) {
+            setPropertyPanesInvisible();
+
             switch (objects.get(selectedElementIndex).object.getObjectType()) {
                 case BOX:
-                    setPropertyPanesInvisible();
                     initPropertiesBox();
                     propertyPane.setVisible(true);
                     box_gravity.setSelected(objects.get(selectedElementIndex).hasGravity);
                     box_collidable.setSelected(objects.get(selectedElementIndex).isCollidable);
                     break;
                 case CIRCLE:
-                    setPropertyPanesInvisible();
                     initPropertiesCircle();
                     propertyPane.setVisible(true);
                     box_gravity.setSelected(objects.get(selectedElementIndex).hasGravity);
                     box_collidable.setSelected(objects.get(selectedElementIndex).isCollidable);
                     break;
                 case TRIANGLE:
-                    setPropertyPanesInvisible();
                     initPropertiesTri();
                     propertyPaneTri.setVisible(true);
                     box_gravityTri.setSelected(objects.get(selectedElementIndex).hasGravity);
                     box_collidableTri.setSelected(objects.get(selectedElementIndex).isCollidable);
                     break;
                 case ROTATION_BOX:
-                    setPropertyPanesInvisible();
                     initPropertiesRotBox();
                     propertyPaneRotBox.setVisible(true);
                     box_gravityRotRect.setSelected(objects.get(selectedElementIndex).hasGravity);
@@ -561,32 +566,34 @@ public class EngineController {
     }
 
     private void movePlayerRight() {
+        double correctionStepSize = 1;
         if (playerElementIndex != -1 && simulate) {
             Movable playerObject = objects.get(playerElementIndex).object;
-            if (playerObject.getRight() + playerSpeed < gamePane.getWidth()) {
-                playerObject.move(new Vec2D(playerSpeed, 0));
-            }
-            if (collidesWithOtherObjects(playerObject, playerElementIndex) ) {
-                playerObject.move(new Vec2D(-playerSpeed, 0));
+            playerObject.move(new Vec2D(playerSpeed, 0));
+
+            while (playerObject.getRight() > gamePane.getWidth()
+                    || collidesWithOtherObjects(playerObject, playerElementIndex)) {
+                playerObject.move(new Vec2D(-correctionStepSize, 0));
             }
         }
     }
 
     private void movePlayerLeft() {
+        double correctionStepSize = 1;
         if (playerElementIndex != -1 && simulate) {
             Movable playerObject = objects.get(playerElementIndex).object;
-            if (playerObject.getLeft() - playerSpeed > 0) {
-                playerObject.move(new Vec2D(-playerSpeed, 0));
-            }
-            if (collidesWithOtherObjects(playerObject, playerElementIndex) ) {
-                playerObject.move(new Vec2D(playerSpeed, 0));
+            playerObject.move(new Vec2D(-playerSpeed, 0));
+
+            while (playerObject.getLeft() < 0
+                    || collidesWithOtherObjects(playerObject, playerElementIndex)) {
+                playerObject.move(new Vec2D(correctionStepSize, 0));
             }
         }
     }
 
     private void playerJump() {
         if (playerElementIndex != -1 && simulate) {
-
+            //Not implemented yet
         }
     }
 
@@ -597,9 +604,9 @@ public class EngineController {
     }
 
     private void setSelectedNotVisible() {
-        selectedPoly.setVisible(false);
-        selectedCircle.setVisible(false);
-        selectedRect.setVisible(false);
+        selectionPoly.setVisible(false);
+        selectionCircle.setVisible(false);
+        selectionRect.setVisible(false);
     }
 
     private String convertToStringOneDecimal(Double d) {
@@ -617,13 +624,7 @@ public class EngineController {
 
                     if (objects.get(i).representation == null) {
                         Rectangle rectBox = new Rectangle();
-                        rectBox.setStrokeWidth(5);
-                        rectBox.setStrokeLineCap(StrokeLineCap.ROUND);
-                        rectBox.setStrokeType(StrokeType.INSIDE);
-                        rectBox.setStroke(Color.BLACK);
-                        rectBox.setFill(transparent);
-                        objects.get(i).representation = rectBox;
-                        gamePane.getChildren().add(rectBox);
+                        initShape(rectBox, i);
                     }
 
                     Rectangle rect = (Rectangle)(objects.get(i).representation);
@@ -631,14 +632,6 @@ public class EngineController {
                     rect.setLayoutY(box.getBottom());
                     rect.setWidth(box.getWidth());
                     rect.setHeight(box.getHeight());
-
-                    if (playerElementIndex == i) {
-                        rect.setFill(Color.DEEPSKYBLUE);
-                    } else if (selectedElementIndex == i) {
-                        rect.setFill(Color.LIGHTGREEN);
-                    } else {
-                        rect.setFill(transparent);
-                    }
                     break;
                 case ROTATION_BOX:
                     RotationBox2D boxRot = (RotationBox2D) (objects.get(i).object);
@@ -651,13 +644,7 @@ public class EngineController {
                                 points.get(2).x, points.get(2).y,
                                 points.get(3).x, points.get(3).y
                         );
-                        rotBox.setStrokeWidth(5);
-                        rotBox.setStrokeLineCap(StrokeLineCap.ROUND);
-                        rotBox.setStroke(Color.BLACK);
-                        rotBox.setStrokeType(StrokeType.INSIDE);
-                        rotBox.setFill(transparent);
-                        objects.get(i).representation = rotBox;
-                        gamePane.getChildren().add(rotBox);
+                        initShape(rotBox, i);
                     }
 
                     Polygon rectRot = (Polygon) (objects.get(i).representation);
@@ -666,39 +653,18 @@ public class EngineController {
                         rectRot.getPoints().set(j * 2, points.get(j).x);
                         rectRot.getPoints().set(j * 2 + 1, points.get(j).y);
                     }
-
-                    if (playerElementIndex == i) {
-                        rectRot.setFill(Color.DEEPSKYBLUE);
-                    } else if (selectedElementIndex == i) {
-                        rectRot.setFill(Color.LIGHTGREEN);
-                    } else {
-                        rectRot.setFill(transparent);
-                    }
                     break;
                 case CIRCLE:
                     Circle2D c = (Circle2D) (objects.get(i).object);
 
                     if (objects.get(i).representation == null) {
                         Circle circle = new Circle();
-                        circle.setStroke(Color.BLACK);
-                        circle.setFill(transparent);
-                        circle.setStrokeWidth(5);
-                        circle.setStrokeType(StrokeType.INSIDE);
-                        objects.get(i).representation = circle;
-                        gamePane.getChildren().add(circle);
+                        initShape(circle, i);
                     }
                     Circle circle = (Circle)(objects.get(i).representation);
                     circle.setCenterX(c.getCenter().x);
                     circle.setCenterY(c.getCenter().y);
                     circle.setRadius(c.getRadius());
-
-                    if (playerElementIndex == i) {
-                        circle.setFill(Color.DEEPSKYBLUE);
-                    } else if (selectedElementIndex == i) {
-                        circle.setFill(Color.LIGHTGREEN);
-                    } else {
-                        circle.setFill(transparent);
-                    }
                     break;
                 case TRIANGLE:
                     Triangle2D triangle2D = (Triangle2D) (objects.get(i).object);
@@ -709,12 +675,7 @@ public class EngineController {
                                 triangle2D.getB().x, triangle2D.getB().y,
                                 triangle2D.getC().x, triangle2D.getC().y
                         );
-                        polygon.setFill(transparent);
-                        polygon.setStroke(Color.BLACK);
-                        polygon.setStrokeType(StrokeType.INSIDE);
-                        polygon.setStrokeWidth(5);
-                        objects.get(i).representation = polygon;
-                        gamePane.getChildren().add(polygon);
+                        initShape(polygon, i);
                     }
                     Polygon polygon = (Polygon) (objects.get(i).representation);
                     polygon.getPoints().set(0, triangle2D.getA().x);
@@ -723,16 +684,16 @@ public class EngineController {
                     polygon.getPoints().set(3, triangle2D.getB().y);
                     polygon.getPoints().set(4, triangle2D.getC().x);
                     polygon.getPoints().set(5, triangle2D.getC().y);
-
-                    if (playerElementIndex == i) {
-                        polygon.setFill(Color.DEEPSKYBLUE);
-                    } else if (selectedElementIndex == i) {
-                        polygon.setFill(Color.LIGHTGREEN);
-                    } else {
-                        polygon.setFill(transparent);
-                    }
                 default:
                     break;
+            }
+            Shape currentShape = objects.get(i).representation;
+            if (playerElementIndex == i) {
+                currentShape.setFill(Color.DEEPSKYBLUE);
+            } else if (selectedElementIndex == i) {
+                currentShape.setFill(Color.LIGHTGREEN);
+            } else {
+                currentShape.setFill(transparent);
             }
         }
 
@@ -743,29 +704,29 @@ public class EngineController {
             switch (selected) {
                 case BOX:
                 case ROTATION_BOX:
-                    selectedRect.setLayoutX(x - currentSize/2);
-                    selectedRect.setLayoutY(y - currentSize/2);
-                    selectedRect.setWidth(currentSize);
-                    selectedRect.setHeight(currentSize);
-                    if (!selectedRect.isVisible()) {
-                        selectedRect.setVisible(true);
+                    selectionRect.setLayoutX(x - currentSize/2);
+                    selectionRect.setLayoutY(y - currentSize/2);
+                    selectionRect.setWidth(currentSize);
+                    selectionRect.setHeight(currentSize);
+                    if (!selectionRect.isVisible()) {
+                        selectionRect.setVisible(true);
                     }
                     break;
                 case CIRCLE:
-                    selectedCircle.setCenterX(x);
-                    selectedCircle.setCenterY(y);
-                    selectedCircle.setRadius(currentSize/2);
-                    if (!selectedCircle.isVisible()) {
-                        selectedCircle.setVisible(true);
+                    selectionCircle.setCenterX(x);
+                    selectionCircle.setCenterY(y);
+                    selectionCircle.setRadius(currentSize/2);
+                    if (!selectionCircle.isVisible()) {
+                        selectionCircle.setVisible(true);
                     }
                     break;
                 case TRIANGLE:
-                    selectedPoly.getPoints().clear();
-                    selectedPoly.getPoints().addAll(x - currentSize/2, y - currentSize/2);
-                    selectedPoly.getPoints().addAll(x + currentSize/2, y - currentSize/2);
-                    selectedPoly.getPoints().addAll(x , y + currentSize/2);
-                    if (!selectedPoly.isVisible()) {
-                        selectedPoly.setVisible(true);
+                    selectionPoly.getPoints().clear();
+                    selectionPoly.getPoints().addAll(x - currentSize/2, y - currentSize/2);
+                    selectionPoly.getPoints().addAll(x + currentSize/2, y - currentSize/2);
+                    selectionPoly.getPoints().addAll(x , y + currentSize/2);
+                    if (!selectionPoly.isVisible()) {
+                        selectionPoly.setVisible(true);
                     }
                     break;
                 default:
@@ -774,5 +735,14 @@ public class EngineController {
         } else {
            setSelectedNotVisible();
         }
+    }
+
+    private void initShape(Shape shape, int index) {
+        shape.setFill(transparent);
+        shape.setStroke(Color.BLACK);
+        shape.setStrokeType(StrokeType.INSIDE);
+        shape.setStrokeWidth(5);
+        objects.get(index).representation = shape;
+        gamePane.getChildren().add(shape);
     }
 }
