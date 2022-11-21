@@ -1,6 +1,6 @@
 package Basics;
 
-public class Circle2D extends Movable{
+public class Circle2D extends Collider {
     private Vec2D center;
     private double radius;
 
@@ -67,7 +67,7 @@ public class Circle2D extends Movable{
     }
 
     @Override
-    public Movable getCopy() {
+    public Collider getCopy() {
         return new Circle2D(center, radius);
     }
 

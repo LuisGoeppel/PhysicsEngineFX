@@ -1,7 +1,5 @@
-package test.Basics;
+package Basics;
 
-import Basics.Line2D;
-import Basics.Vec2D;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

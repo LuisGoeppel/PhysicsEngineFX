@@ -4,7 +4,6 @@ import Basics.*;
 import Controls.Gravity;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -307,7 +306,7 @@ public class EngineController {
             switch (objects.get(selectedElementIndex).object.getObjectType()) {
                 case BOX:
                     Box2D currentBox = (Box2D) ((objects.get(selectedElementIndex).object));
-                    Movable backupIfCollidingBox = currentBox.getCopy();
+                    Collider backupIfCollidingBox = currentBox.getCopy();
                     currentBox.setCenter(new Vec2D(Double.parseDouble(field_X.getText()),
                             Double.parseDouble(field_Y.getText())));
                     currentBox.setWidth(Double.parseDouble(field_width.getText()));
@@ -321,7 +320,7 @@ public class EngineController {
                     break;
                 case CIRCLE:
                     Circle2D currentCircle = (Circle2D) (objects.get(selectedElementIndex).object);
-                    Movable backupIfCollidingCircle = currentCircle.getCopy();
+                    Collider backupIfCollidingCircle = currentCircle.getCopy();
                     currentCircle.setCenter(new Vec2D(Double.parseDouble(field_X.getText()),
                             Double.parseDouble(field_Y.getText())));
                     currentCircle.setRadius(Double.parseDouble(field_width.getText()));
@@ -334,7 +333,7 @@ public class EngineController {
                     break;
                 case TRIANGLE:
                     Triangle2D currentTri = (Triangle2D) (objects.get(selectedElementIndex).object);
-                    Movable backupIfCollidingTri = currentTri.getCopy();
+                    Collider backupIfCollidingTri = currentTri.getCopy();
                     currentTri.setA(new Vec2D(Double.parseDouble(fieldAX.getText()),
                             Double.parseDouble(fieldAY.getText())));
                     currentTri.setB(new Vec2D(Double.parseDouble(fieldBX.getText()),
@@ -350,7 +349,7 @@ public class EngineController {
                     break;
                 case ROTATION_BOX:
                     RotationBox2D currentRotBox = (RotationBox2D) (objects.get(selectedElementIndex).object);
-                    Movable backupIfCollidingRotBox = currentRotBox.getCopy();
+                    Collider backupIfCollidingRotBox = currentRotBox.getCopy();
                     currentRotBox.setCenter(new Vec2D(Double.parseDouble(field_XRotRect.getText()),
                             Double.parseDouble(field_YRotRect.getText())));
                     currentRotBox.setWidth(Double.parseDouble(field_widthRotRect.getText()));
@@ -383,7 +382,7 @@ public class EngineController {
         setPropertyPanesInvisible();
     }
 
-    private boolean collidesWithOtherObjects(Movable rhs) {
+    private boolean collidesWithOtherObjects(Collider rhs) {
 
         for (PhysicsObject o : objects) {
             if (!o.equals(rhs) && o.isCollidable && Utility.isColliding(o.object, rhs)) {
@@ -393,7 +392,7 @@ public class EngineController {
         return false;
     }
 
-    private boolean collidesWithOtherObjects(Movable rhs, int elementIndex) {
+    private boolean collidesWithOtherObjects(Collider rhs, int elementIndex) {
 
         if (!objects.get(elementIndex).isCollidable) {
             return false;
@@ -568,7 +567,7 @@ public class EngineController {
     private void movePlayerRight() {
         double correctionStepSize = 1;
         if (playerElementIndex != -1 && simulate) {
-            Movable playerObject = objects.get(playerElementIndex).object;
+            Collider playerObject = objects.get(playerElementIndex).object;
             playerObject.move(new Vec2D(playerSpeed, 0));
 
             while (playerObject.getRight() > gamePane.getWidth()
@@ -581,7 +580,7 @@ public class EngineController {
     private void movePlayerLeft() {
         double correctionStepSize = 1;
         if (playerElementIndex != -1 && simulate) {
-            Movable playerObject = objects.get(playerElementIndex).object;
+            Collider playerObject = objects.get(playerElementIndex).object;
             playerObject.move(new Vec2D(-playerSpeed, 0));
 
             while (playerObject.getLeft() < 0

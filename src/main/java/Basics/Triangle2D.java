@@ -1,7 +1,6 @@
 package Basics;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Triangle2D extends Polygon2D {
@@ -104,7 +103,7 @@ public class Triangle2D extends Polygon2D {
     }
 
     @Override
-    public Movable getCopy() {
+    public Collider getCopy() {
         return new Triangle2D(A, B, C);
     }
 

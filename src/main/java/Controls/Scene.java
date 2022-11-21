@@ -1,23 +1,23 @@
 package Controls;
 
-import Basics.Movable;
+import Basics.Collider;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Scene {
 
-    private List<Movable> sceneObjects;
+    private List<Collider> sceneObjects;
 
     public Scene () {
         sceneObjects = new ArrayList<>();
     }
 
-    public void addObject (Movable object) {
+    public void addObject (Collider object) {
         sceneObjects.add(object);
     }
 
-    public List<Movable> getSceneObjects() {
+    public List<Collider> getSceneObjects() {
         return sceneObjects;
     }
 }

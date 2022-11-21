@@ -166,7 +166,7 @@ public class RotationBox2D extends Polygon2D {
     }
 
     @Override
-    public Movable getCopy() {
+    public Collider getCopy() {
         return new RotationBox2D(center, width, height, convertAngleToDeg(rotationAngle));
     }
 

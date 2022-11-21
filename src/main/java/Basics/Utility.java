@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Utility {
 
-    public static boolean isColliding(Movable lhs, Movable rhs) {
+    public static boolean isColliding(Collider lhs, Collider rhs) {
         switch (lhs.getObjectType()) {
             case BOX:
                 switch (rhs.getObjectType()) {

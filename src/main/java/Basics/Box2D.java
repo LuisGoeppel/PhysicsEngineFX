@@ -3,7 +3,6 @@ package Basics;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 public class Box2D extends Polygon2D {
     private Vec2D topRight;
@@ -67,7 +66,7 @@ public class Box2D extends Polygon2D {
     }
 
     @Override
-    public Movable getCopy() {
+    public Collider getCopy() {
         return new Box2D(bottomLeft, topRight);
     }
 

@@ -1,6 +1,6 @@
 package Controls;
 
-import Basics.Movable;
+import Basics.Collider;
 import Basics.Utility;
 import Basics.Vec2D;
 import Controller.PhysicsObject;
@@ -11,13 +11,13 @@ import java.util.List;
 public class Gravity {
 
     private class GravityObject {
-        public Movable object;
+        public Collider object;
         public Boolean applyGravity;
         public Boolean isCollidable;
         public Boolean movedToCollidingObject;
         public int ticksSinceStart;
 
-        public GravityObject(Movable object, Boolean applyGravity, Boolean isCollidable, int ticksSinceStart) {
+        public GravityObject(Collider object, Boolean applyGravity, Boolean isCollidable, int ticksSinceStart) {
             this.object = object;
             this.applyGravity = applyGravity;
             this.ticksSinceStart = ticksSinceStart;
@@ -30,7 +30,7 @@ public class Gravity {
     private final double GRAVITY_CONSTANT = 0.1635; //60 FPS
     private double bottomYCord;
 
-    public Gravity(List<Movable> objects, List<Boolean> applyGravity,
+    public Gravity(List<Collider> objects, List<Boolean> applyGravity,
                    List<Boolean> collidable, double bottomYCord) {
 
         if (objects.size() != applyGravity.size()) {
@@ -54,7 +54,7 @@ public class Gravity {
         gravityObjects.add(new GravityObject(o.object, o.hasGravity, o.isCollidable, 0));
     }
 
-    public void add(Movable m, boolean applyGravity, boolean isCollidable) {
+    public void add(Collider m, boolean applyGravity, boolean isCollidable) {
         gravityObjects.add(new GravityObject(m, applyGravity, isCollidable,0));
     }
 
@@ -84,13 +84,13 @@ public class Gravity {
 
     public void tick() {
         for (int i = 0; i < gravityObjects.size(); i++) {
-            Movable active = gravityObjects.get(i).object;
+            Collider active = gravityObjects.get(i).object;
             int collisionIndex = -1;
 
             if (gravityObjects.get(i).applyGravity) {
 
                 boolean isColliding = false;
-                Movable copy = active.getCopy();
+                Collider copy = active.getCopy();
                 copy.move(new Vec2D(0, getDeltaS(gravityObjects.get(i).ticksSinceStart)));
 
                 for (int j = 0; j < gravityObjects.size(); j++) {
@@ -136,7 +136,7 @@ public class Gravity {
         }
     }
 
-    private void moveToCollidingObject(Movable activeObject, Movable standingObject, double maxDeltaS) {
+    private void moveToCollidingObject(Collider activeObject, Collider standingObject, double maxDeltaS) {
 
         int precision = 5;
         double current = maxDeltaS;
