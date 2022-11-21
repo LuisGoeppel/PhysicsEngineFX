@@ -119,7 +119,7 @@ public class Utility {
         if (lhs.contains(rhs.getCenter())) {
             return true;
         }
-        int additionalPointsPerSide = 4;
+        int additionalPointsPerSide = 9;
         List<Vec2D> rotBoxPoints = new ArrayList<>();
         List<Vec2D> points = lhs.getPoints();
         rotBoxPoints.addAll(points);

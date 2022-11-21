@@ -71,6 +71,7 @@ public class Box2D extends Polygon2D {
         return new Box2D(bottomLeft, topRight);
     }
 
+    @Override
     public Vec2D getCenter() {
         return new Vec2D(bottomLeft.x + (topRight.x - bottomLeft.x) / 2, bottomLeft.y + (topRight.y - bottomLeft.y) / 2);
     }

@@ -9,6 +9,7 @@ public class Circle2D extends Movable{
         this.radius = radius;
     }
 
+    @Override
     public Vec2D getCenter() {
         return center;
     }

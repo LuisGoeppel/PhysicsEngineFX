@@ -32,6 +32,7 @@ public class RotationBox2D extends Polygon2D {
         rotationAngle = Math.acos(rot.dotProduct(base) / (rot.getLength() * base.getLength()));
     }
 
+    @Override
     public Vec2D getCenter() {
         return center;
     }
@@ -61,15 +62,8 @@ public class RotationBox2D extends Polygon2D {
     }
 
     public void setRotationAngle(double rotationAngle) {
+        System.out.println("Some angle was set");
         this.rotationAngle = convertAngleToRad(rotationAngle);
-    }
-
-    private double convertAngleToRad (double deg) {
-        return deg * (Math.PI / 180);
-    }
-
-    private double convertAngleToDeg (double rad) {
-        return rad * (180 / Math.PI);
     }
 
     @Override
@@ -173,12 +167,21 @@ public class RotationBox2D extends Polygon2D {
 
     @Override
     public Movable getCopy() {
-        return new RotationBox2D(center, width, height, rotationAngle);
+        return new RotationBox2D(center, width, height, convertAngleToDeg(rotationAngle));
     }
 
     @Override
     public String toString() {
         return "RotationBox2D: [center = " + center + ", width = " + width +
                 ", height = " + height + ", rotationAngle = " + rotationAngle + "]";
+    }
+
+
+    private double convertAngleToRad (double deg) {
+        return deg * (Math.PI / 180);
+    }
+
+    private double convertAngleToDeg (double rad) {
+        return rad * (180 / Math.PI);
     }
 }

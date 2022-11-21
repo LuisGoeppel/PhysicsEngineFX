@@ -65,6 +65,7 @@ public class Gravity {
     public void clear() {
         gravityObjects.clear();
     }
+
     public void updateElements(List<PhysicsObject> physicObjects) {
         gravityObjects.clear();
         for (int i = 0; i < physicObjects.size(); i++) {
@@ -119,10 +120,17 @@ public class Gravity {
                 //Colliding with another object
                 } else if (!gravityObjects.get(i).movedToCollidingObject
                         && gravityObjects.get(collisionIndex).ticksSinceStart == 0){
-                    moveToCollidingObject(active, gravityObjects.get(collisionIndex).object,
-                            getDeltaS(gravityObjects.get(i).ticksSinceStart));
-                    resetTicksAt(i);
-                    gravityObjects.get(i).movedToCollidingObject = true;
+
+                    if (active.getCenter().y < gravityObjects.get(collisionIndex).object.getCenter().y) {
+                        moveToCollidingObject(active, gravityObjects.get(collisionIndex).object,
+                                getDeltaS(gravityObjects.get(i).ticksSinceStart));
+                        resetTicksAt(i);
+                        gravityObjects.get(i).movedToCollidingObject = true;
+                    } else {
+                        active.move(new Vec2D(0, getDeltaS(gravityObjects.get(i).ticksSinceStart)));
+                        increaseTicksAt(i);
+                        gravityObjects.get(i).movedToCollidingObject = false;
+                    }
                 }
             }
         }

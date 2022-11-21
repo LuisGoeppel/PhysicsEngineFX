@@ -10,6 +10,7 @@ public abstract class Movable {
     public abstract double getTop();
     public abstract double getLeft();
     public abstract double getRight();
+    public abstract Vec2D getCenter();
     public abstract Movable getCopy();
 
 }

@@ -99,6 +99,11 @@ public class Triangle2D extends Polygon2D {
     }
 
     @Override
+    public Vec2D getCenter() {
+        return new Vec2D(getRight() - getLeft(), getTop() - getBottom());
+    }
+
+    @Override
     public Movable getCopy() {
         return new Triangle2D(A, B, C);
     }
