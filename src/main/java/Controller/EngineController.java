@@ -4,10 +4,7 @@ import Basics.*;
 import Controls.Gravity;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -47,6 +44,8 @@ public class EngineController {
     @FXML
     private CheckBox box_collidable, box_collidableTri, box_collidableRotRect;
     @FXML
+    private Slider slider_bounciness, slider_bouncinessTri;
+    @FXML
     private AnchorPane gamePane;
     @FXML
     private AnchorPane propertyPane, propertyPaneTri, propertyPaneRotBox;
@@ -58,9 +57,9 @@ public class EngineController {
     private final double maxSize = 400;
     private final double playerSpeed = 10;
     private final double scrollIncreaseFactor = 7;
-    private int maxObjects = 25;
-    private boolean defaultGravity = false;
-    private boolean defaultCollidable = true;
+    private final int maxObjects = 25;
+    private final boolean defaultGravity = false;
+    private final boolean defaultCollidable = true;
     private int selectedElementIndex, playerElementIndex;
     private Rectangle selectionRect;
     private Circle selectionCircle;
@@ -70,9 +69,9 @@ public class EngineController {
     private TimerTask task;
     private Gravity gravity;
     private boolean simulate;
-    private String btnBackgroundColor = "#dedede";
-    private String selectedColor = "LightGreen";
-    private Color transparent = new Color(0, 0, 0, 0);
+    private final String btnBackgroundColor = "#dedede";
+    private final String selectedColor = "LightGreen";
+    private final Color transparent = new Color(0, 0, 0, 0);
 
     public void init() {
         System.out.println("Initializing");
@@ -101,7 +100,7 @@ public class EngineController {
                         Box2D newBox = new Box2D(bottomLeftBox, currentSize, currentSize);
                         if (!collidesWithOtherObjects(newBox) && curShapeInsideGameRect()) {
                             PhysicsObject object = new PhysicsObject(
-                                    newBox, null, defaultGravity, defaultCollidable);
+                                    newBox, null, defaultGravity, defaultCollidable, 0);
                             objects.add(object);
                             gravity.add(object);
                         }
@@ -111,7 +110,7 @@ public class EngineController {
                         Circle2D newCircle2D = new Circle2D(center, currentSize/2);
                         if (!collidesWithOtherObjects(newCircle2D) && curShapeInsideGameRect()) {
                             PhysicsObject object = new PhysicsObject(
-                                    newCircle2D, null, defaultGravity, defaultCollidable);
+                                    newCircle2D, null, defaultGravity, defaultCollidable, 0);
                             objects.add(object);
                             gravity.add(object);
                         }
@@ -123,7 +122,7 @@ public class EngineController {
                         Triangle2D newTri = new Triangle2D(bottomLeftTri, bottomRightTri, top);
                         if (!collidesWithOtherObjects(newTri) && curShapeInsideGameRect()) {
                             PhysicsObject object = new PhysicsObject(
-                                    newTri, null, defaultGravity, defaultCollidable);
+                                    newTri, null, defaultGravity, defaultCollidable, 0);
                             objects.add(object);
                             gravity.add(object);
                         }
@@ -132,7 +131,7 @@ public class EngineController {
                         RotationBox2D newBoxRot = new RotationBox2D(new Vec2D(x, y), currentSize, currentSize, 0);
                         if (!collidesWithOtherObjects(newBoxRot) && curShapeInsideGameRect()) {
                             PhysicsObject object = new PhysicsObject(
-                                    newBoxRot, null, defaultGravity, defaultCollidable);
+                                    newBoxRot, null, defaultGravity, defaultCollidable, 0);
                             objects.add(object);
                             gravity.add(object);
                         }
@@ -305,66 +304,86 @@ public class EngineController {
 
             switch (objects.get(selectedElementIndex).object.getObjectType()) {
                 case BOX:
-                    Box2D currentBox = (Box2D) ((objects.get(selectedElementIndex).object));
-                    Collider backupIfCollidingBox = currentBox.getCopy();
-                    currentBox.setCenter(new Vec2D(Double.parseDouble(field_X.getText()),
-                            Double.parseDouble(field_Y.getText())));
-                    currentBox.setWidth(Double.parseDouble(field_width.getText()));
-                    currentBox.setHeight(Double.parseDouble(field_height.getText()));
-                    if (collidesWithOtherObjects(currentBox, selectedElementIndex)) {
-                        objects.get(selectedElementIndex).object = backupIfCollidingBox;
-                    }
-
-                    objects.get(selectedElementIndex).hasGravity = box_gravity.isSelected();
-                    objects.get(selectedElementIndex).isCollidable = box_collidable.isSelected();
-                    break;
                 case CIRCLE:
-                    Circle2D currentCircle = (Circle2D) (objects.get(selectedElementIndex).object);
-                    Collider backupIfCollidingCircle = currentCircle.getCopy();
-                    currentCircle.setCenter(new Vec2D(Double.parseDouble(field_X.getText()),
-                            Double.parseDouble(field_Y.getText())));
-                    currentCircle.setRadius(Double.parseDouble(field_width.getText()));
-                    if (collidesWithOtherObjects(currentCircle, selectedElementIndex)) {
-                        objects.get(selectedElementIndex).object = backupIfCollidingCircle;
+                    if (!simulate || !objects.get(selectedElementIndex).hasGravity) {
+                        if (objects.get(selectedElementIndex).object.getObjectType() == MovableObjectType.BOX) {
+                            modifyBox();
+                        } else {
+                            modifyCircle();
+                        }
                     }
-
+                    objects.get(selectedElementIndex).bounciness = slider_bounciness.getValue();
                     objects.get(selectedElementIndex).hasGravity = box_gravity.isSelected();
                     objects.get(selectedElementIndex).isCollidable = box_collidable.isSelected();
                     break;
                 case TRIANGLE:
-                    Triangle2D currentTri = (Triangle2D) (objects.get(selectedElementIndex).object);
-                    Collider backupIfCollidingTri = currentTri.getCopy();
-                    currentTri.setA(new Vec2D(Double.parseDouble(fieldAX.getText()),
-                            Double.parseDouble(fieldAY.getText())));
-                    currentTri.setB(new Vec2D(Double.parseDouble(fieldBX.getText()),
-                            Double.parseDouble(fieldBY.getText())));
-                    currentTri.setC(new Vec2D(Double.parseDouble(fieldCX.getText()),
-                            Double.parseDouble(fieldCY.getText())));
-                    if (collidesWithOtherObjects(currentTri, selectedElementIndex)) {
-                        objects.get(selectedElementIndex).object = backupIfCollidingTri;
+                    if (!simulate || !objects.get(selectedElementIndex).hasGravity) {
+                        modifyTri();
                     }
-
+                    objects.get(selectedElementIndex).bounciness = slider_bouncinessTri.getValue();
                     objects.get(selectedElementIndex).hasGravity = box_gravityTri.isSelected();
                     objects.get(selectedElementIndex).isCollidable = box_collidableTri.isSelected();
                     break;
                 case ROTATION_BOX:
-                    RotationBox2D currentRotBox = (RotationBox2D) (objects.get(selectedElementIndex).object);
-                    Collider backupIfCollidingRotBox = currentRotBox.getCopy();
-                    currentRotBox.setCenter(new Vec2D(Double.parseDouble(field_XRotRect.getText()),
-                            Double.parseDouble(field_YRotRect.getText())));
-                    currentRotBox.setWidth(Double.parseDouble(field_widthRotRect.getText()));
-                    currentRotBox.setHeight(Double.parseDouble(field_heightRotRect.getText()));
-                    currentRotBox.setRotationAngle(Double.parseDouble(field_angleRotRect.getText()));
-                    if (collidesWithOtherObjects(currentRotBox, selectedElementIndex)) {
-                        objects.get(selectedElementIndex).object = backupIfCollidingRotBox;
+                    if (!simulate || !objects.get(selectedElementIndex).hasGravity) {
+                        modifyRotBox();
                     }
-
                     objects.get(selectedElementIndex).hasGravity = box_gravityRotRect.isSelected();
                     objects.get(selectedElementIndex).isCollidable = box_collidableRotRect.isSelected();
                     break;
             }
 
             gravity.updateElements(objects);
+        }
+    }
+
+    private void modifyBox() {
+        Box2D currentBox = (Box2D) ((objects.get(selectedElementIndex).object));
+        Collider backupIfCollidingBox = currentBox.getCopy();
+        currentBox.setCenter(new Vec2D(Double.parseDouble(field_X.getText()),
+                Double.parseDouble(field_Y.getText())));
+        currentBox.setWidth(Double.parseDouble(field_width.getText()));
+        currentBox.setHeight(Double.parseDouble(field_height.getText()));
+        if (collidesWithOtherObjects(currentBox, selectedElementIndex)) {
+            objects.get(selectedElementIndex).object = backupIfCollidingBox;
+        }
+    }
+
+    private void modifyCircle() {
+        Circle2D currentCircle = (Circle2D) (objects.get(selectedElementIndex).object);
+        Collider backupIfCollidingCircle = currentCircle.getCopy();
+        currentCircle.setCenter(new Vec2D(Double.parseDouble(field_X.getText()),
+                Double.parseDouble(field_Y.getText())));
+        currentCircle.setRadius(Double.parseDouble(field_width.getText()));
+        if (collidesWithOtherObjects(currentCircle, selectedElementIndex)) {
+            objects.get(selectedElementIndex).object = backupIfCollidingCircle;
+        }
+    }
+
+    private void modifyTri() {
+        Triangle2D currentTri = (Triangle2D) (objects.get(selectedElementIndex).object);
+        Collider backupIfCollidingTri = currentTri.getCopy();
+        currentTri.setA(new Vec2D(Double.parseDouble(fieldAX.getText()),
+                Double.parseDouble(fieldAY.getText())));
+        currentTri.setB(new Vec2D(Double.parseDouble(fieldBX.getText()),
+                Double.parseDouble(fieldBY.getText())));
+        currentTri.setC(new Vec2D(Double.parseDouble(fieldCX.getText()),
+                Double.parseDouble(fieldCY.getText())));
+        if (collidesWithOtherObjects(currentTri, selectedElementIndex)) {
+            objects.get(selectedElementIndex).object = backupIfCollidingTri;
+        }
+    }
+
+    private void modifyRotBox() {
+        RotationBox2D currentRotBox = (RotationBox2D) (objects.get(selectedElementIndex).object);
+        Collider backupIfCollidingRotBox = currentRotBox.getCopy();
+        currentRotBox.setCenter(new Vec2D(Double.parseDouble(field_XRotRect.getText()),
+                Double.parseDouble(field_YRotRect.getText())));
+        currentRotBox.setWidth(Double.parseDouble(field_widthRotRect.getText()));
+        currentRotBox.setHeight(Double.parseDouble(field_heightRotRect.getText()));
+        currentRotBox.setRotationAngle(Double.parseDouble(field_angleRotRect.getText()));
+        if (collidesWithOtherObjects(currentRotBox, selectedElementIndex)) {
+            objects.get(selectedElementIndex).object = backupIfCollidingRotBox;
         }
     }
 
@@ -385,7 +404,7 @@ public class EngineController {
     private boolean collidesWithOtherObjects(Collider rhs) {
 
         for (PhysicsObject o : objects) {
-            if (!o.equals(rhs) && o.isCollidable && Utility.isColliding(o.object, rhs)) {
+            if (o.isCollidable && Utility.isColliding(o.object, rhs)) {
                 return true;
             }
         }
@@ -466,18 +485,21 @@ public class EngineController {
                 case BOX:
                     initPropertiesBox();
                     propertyPane.setVisible(true);
+                    slider_bounciness.setValue(objects.get(selectedElementIndex).bounciness);
                     box_gravity.setSelected(objects.get(selectedElementIndex).hasGravity);
                     box_collidable.setSelected(objects.get(selectedElementIndex).isCollidable);
                     break;
                 case CIRCLE:
                     initPropertiesCircle();
                     propertyPane.setVisible(true);
+                    slider_bounciness.setValue(objects.get(selectedElementIndex).bounciness);
                     box_gravity.setSelected(objects.get(selectedElementIndex).hasGravity);
                     box_collidable.setSelected(objects.get(selectedElementIndex).isCollidable);
                     break;
                 case TRIANGLE:
                     initPropertiesTri();
                     propertyPaneTri.setVisible(true);
+                    slider_bouncinessTri.setValue(objects.get(selectedElementIndex).bounciness);
                     box_gravityTri.setSelected(objects.get(selectedElementIndex).hasGravity);
                     box_collidableTri.setSelected(objects.get(selectedElementIndex).isCollidable);
                     break;

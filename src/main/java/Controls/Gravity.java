@@ -15,14 +15,23 @@ public class Gravity {
         public Boolean applyGravity;
         public Boolean isCollidable;
         public Boolean movedToCollidingObject;
+        public double bounciness;
+        public boolean upwardsForce;
         public int ticksSinceStart;
 
-        public GravityObject(Collider object, Boolean applyGravity, Boolean isCollidable, int ticksSinceStart) {
+        public GravityObject(Collider object, Boolean applyGravity, Boolean isCollidable,
+                             int ticksSinceStart, double bounciness) {
+
+            if (bounciness >= 1) {
+                throw new IllegalArgumentException("Yeah mate that's not gonna work");
+            }
             this.object = object;
             this.applyGravity = applyGravity;
             this.ticksSinceStart = ticksSinceStart;
             this.isCollidable = isCollidable;
+            this.bounciness = bounciness;
             movedToCollidingObject = false;
+            upwardsForce = false;
         }
     }
 
@@ -31,7 +40,7 @@ public class Gravity {
     private double bottomYCord;
 
     public Gravity(List<Collider> objects, List<Boolean> applyGravity,
-                   List<Boolean> collidable, double bottomYCord) {
+                   List<Boolean> collidable, List<Double> bounciness, double bottomYCord) {
 
         if (objects.size() != applyGravity.size()) {
             throw new IllegalArgumentException("Sizes do not match!");
@@ -39,7 +48,7 @@ public class Gravity {
         gravityObjects = new ArrayList<>();
         for (int i = 0; i < objects.size(); i++) {
             GravityObject gravityObject = new GravityObject(objects.get(i),
-                    applyGravity.get(i), collidable.get(i), 0);
+                    applyGravity.get(i), collidable.get(i), 0, bounciness.get(i));
             gravityObjects.add(gravityObject);
         }
         this.bottomYCord = bottomYCord;
@@ -51,11 +60,11 @@ public class Gravity {
     }
 
     public void add(PhysicsObject o) {
-        gravityObjects.add(new GravityObject(o.object, o.hasGravity, o.isCollidable, 0));
+        gravityObjects.add(new GravityObject(o.object, o.hasGravity, o.isCollidable, 0, o.bounciness));
     }
 
-    public void add(Collider m, boolean applyGravity, boolean isCollidable) {
-        gravityObjects.add(new GravityObject(m, applyGravity, isCollidable,0));
+    public void add(Collider m, boolean applyGravity, boolean isCollidable, double bounciness) {
+        gravityObjects.add(new GravityObject(m, applyGravity, isCollidable,0, bounciness));
     }
 
     public void giveGravityAt(int index) {
@@ -70,7 +79,7 @@ public class Gravity {
         gravityObjects.clear();
         for (int i = 0; i < physicObjects.size(); i++) {
             add(physicObjects.get(i).object, physicObjects.get(i).hasGravity,
-                    physicObjects.get(i).isCollidable);
+                    physicObjects.get(i).isCollidable, physicObjects.get(i).bounciness);
         }
     }
 
@@ -84,17 +93,49 @@ public class Gravity {
 
     public void tick() {
         for (int i = 0; i < gravityObjects.size(); i++) {
-            Collider active = gravityObjects.get(i).object;
+            GravityObject active = gravityObjects.get(i);
             int collisionIndex = -1;
+            boolean isColliding = false;
 
-            if (gravityObjects.get(i).applyGravity) {
+            if (gravityObjects.get(i).upwardsForce) {
 
-                boolean isColliding = false;
-                Collider copy = active.getCopy();
-                copy.move(new Vec2D(0, getDeltaS(gravityObjects.get(i).ticksSinceStart)));
+                //Bounce Fun
+                double currentUpwardsForce = getDeltaS(active.ticksSinceStart) * active.bounciness;
+                active.object.move(new Vec2D(0, -1 * currentUpwardsForce));
 
                 for (int j = 0; j < gravityObjects.size(); j++) {
-                    if (i != j && gravityObjects.get(i).isCollidable &&
+                    if (i != j && active.isCollidable &&
+                            gravityObjects.get(j).isCollidable &&
+                            Utility.isColliding(gravityObjects.get(j).object, active.object)) {
+
+                        isColliding = true;
+                        collisionIndex = j;
+                        break;
+                    }
+                }
+
+                if (!isColliding) {
+                    active.ticksSinceStart--;
+                    if (active.ticksSinceStart <= 0) {
+                        active.upwardsForce = false;
+                    }
+                } else {
+                    active.upwardsForce = false;
+                    active.ticksSinceStart *= (active.bounciness) * (active.bounciness);
+                    if (gravityObjects.get(collisionIndex).bounciness > 0) {
+                        GravityObject collider = gravityObjects.get(collisionIndex);
+                        double colliderUpwardsForce = getDeltaS(collider.ticksSinceStart) * collider.bounciness;
+                        collider.object.move(new Vec2D(0, -1 * colliderUpwardsForce));
+                    }
+                }
+
+            } else if (gravityObjects.get(i).applyGravity) {
+
+                Collider copy = active.object.getCopy();
+                copy.move(new Vec2D(0, getDeltaS(active.ticksSinceStart)));
+
+                for (int j = 0; j < gravityObjects.size(); j++) {
+                    if (i != j && active.isCollidable &&
                             gravityObjects.get(j).isCollidable &&
                             Utility.isColliding(gravityObjects.get(j).object, copy)) {
 
@@ -105,31 +146,35 @@ public class Gravity {
                 }
 
                 //Not colliding
-                if (!isColliding && active.getTop() < bottomYCord) {
-                    active.move(new Vec2D(0, getDeltaS(gravityObjects.get(i).ticksSinceStart)));
+                if (!isColliding && active.object.getTop() < bottomYCord) {
+                    active.object.move(new Vec2D(0, getDeltaS(gravityObjects.get(i).ticksSinceStart)));
                     increaseTicksAt(i);
-                    gravityObjects.get(i).movedToCollidingObject = false;
+                    active.movedToCollidingObject = false;
 
                 //Colliding with the bottom
-                } else if (active.getTop() >= bottomYCord){
-                    if (active.getTop() != bottomYCord) {
-                        active.move(new Vec2D(0, bottomYCord - active.getTop()));
+                } else if (active.object.getTop() >= bottomYCord){
+                    if (active.bounciness > 0 && active.ticksSinceStart > 10) {
+                        active.upwardsForce = true;
+                    } else if (active.object.getTop() != bottomYCord) {
+                        active.object.move(new Vec2D(0, bottomYCord - active.object.getTop()));
                         resetTicksAt(i);
                     }
 
                 //Colliding with another object
-                } else if (!gravityObjects.get(i).movedToCollidingObject
+                } else if (!active.movedToCollidingObject
                         && gravityObjects.get(collisionIndex).ticksSinceStart == 0){
 
-                    if (active.getCenter().y < gravityObjects.get(collisionIndex).object.getCenter().y) {
-                        moveToCollidingObject(active, gravityObjects.get(collisionIndex).object,
-                                getDeltaS(gravityObjects.get(i).ticksSinceStart));
+                    if (active.bounciness > 0 && active.ticksSinceStart > 10) {
+                        active.upwardsForce = true;
+                    } else if (active.object.getCenter().y < gravityObjects.get(collisionIndex).object.getCenter().y) {
+                        moveToCollidingObject(active.object, gravityObjects.get(collisionIndex).object,
+                                getDeltaS(active.ticksSinceStart));
                         resetTicksAt(i);
                         gravityObjects.get(i).movedToCollidingObject = true;
                     } else {
-                        active.move(new Vec2D(0, getDeltaS(gravityObjects.get(i).ticksSinceStart)));
+                        active.object.move(new Vec2D(0, getDeltaS(active.ticksSinceStart)));
                         increaseTicksAt(i);
-                        gravityObjects.get(i).movedToCollidingObject = false;
+                        active.movedToCollidingObject = false;
                     }
                 }
             }

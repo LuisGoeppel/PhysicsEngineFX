@@ -62,7 +62,6 @@ public class RotationBox2D extends Polygon2D {
     }
 
     public void setRotationAngle(double rotationAngle) {
-        System.out.println("Some angle was set");
         this.rotationAngle = convertAngleToRad(rotationAngle);
     }
 
