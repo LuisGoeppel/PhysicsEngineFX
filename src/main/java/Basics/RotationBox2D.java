@@ -9,11 +9,18 @@ public class RotationBox2D extends Polygon2D {
     private double width, height;
     private double rotationAngle; //in radians
 
+    //Additional Information;
+    private List<Vec2D> points;
+    private List<Line2D> sides;
+
     public RotationBox2D(Vec2D center, double width, double height, double rotationAngle) {
         this.center = center;
         this.width = width;
         this.height = height;
         this.rotationAngle = convertAngleToRad(rotationAngle);
+
+        points = new ArrayList<>();
+        sides = new ArrayList<>();
     }
 
     public RotationBox2D(Vec2D p1, Vec2D p2, Vec2D p3, Vec2D p4) {
@@ -30,6 +37,9 @@ public class RotationBox2D extends Polygon2D {
         Vec2D base = new Vec2D(1, 0);
 
         rotationAngle = Math.acos(rot.dotProduct(base) / (rot.getLength() * base.getLength()));
+
+        points = new ArrayList<>();
+        sides = new ArrayList<>();
     }
 
     @Override
@@ -51,44 +61,36 @@ public class RotationBox2D extends Polygon2D {
 
     public void setCenter(Vec2D center) {
         this.center = center;
+        clearAdditionalInfo();
     }
 
     public void setWidth(double width) {
         this.width = width;
+        clearAdditionalInfo();
     }
 
     public void setHeight(double height) {
         this.height = height;
+        clearAdditionalInfo();
     }
 
     public void setRotationAngle(double rotationAngle) {
         this.rotationAngle = convertAngleToRad(rotationAngle);
+        clearAdditionalInfo();
     }
 
     @Override
     public List<Vec2D> getPoints() {
-        List<Vec2D> corners = new ArrayList<>();
-
-        Vec2D v1 = new Vec2D(Math.cos(rotationAngle), Math.sin(rotationAngle));
-        Vec2D v2 = new Vec2D(-1 * v1.y, v1.x);
-
-        v1 = v1.mult(width/2);
-        v2 = v2.mult(height/2);
-
-        corners.add(center.add(v1).add(v2));
-        corners.add(center.add(v1).sub(v2));
-        corners.add(center.sub(v1).sub(v2));
-        corners.add(center.sub(v1).add(v2));
-
-        return corners;
+        if (points.isEmpty()) {
+            points = calculatePoints();
+        }
+        return points;
     }
 
     @Override
     public List<Line2D> getSides() {
-        List<Vec2D> corners = getPoints();
-        List<Line2D> sides = new ArrayList<>();
-        for (int i = 0; i < corners.size(); i++) {
-            sides.add(new Line2D(corners.get(i), corners.get((i + 1) % corners.size())));
+        if (sides.isEmpty()) {
+            sides = calculateSides();
         }
         return sides;
     }
@@ -96,6 +98,7 @@ public class RotationBox2D extends Polygon2D {
     @Override
     public void move(Vec2D dir) {
         center = center.add(dir);
+        clearAdditionalInfo();
     }
 
     @Override
@@ -182,5 +185,36 @@ public class RotationBox2D extends Polygon2D {
 
     private double convertAngleToDeg (double rad) {
         return rad * (180 / Math.PI);
+    }
+
+    private List<Vec2D> calculatePoints() {
+        List<Vec2D> corners = new ArrayList<>();
+
+        Vec2D v1 = new Vec2D(Math.cos(rotationAngle), Math.sin(rotationAngle));
+        Vec2D v2 = new Vec2D(-1 * v1.y, v1.x);
+
+        v1 = v1.mult(width/2);
+        v2 = v2.mult(height/2);
+
+        corners.add(center.add(v1).add(v2));
+        corners.add(center.add(v1).sub(v2));
+        corners.add(center.sub(v1).sub(v2));
+        corners.add(center.sub(v1).add(v2));
+
+        return corners;
+    }
+
+    private List<Line2D> calculateSides() {
+        List<Vec2D> corners = getPoints();
+        List<Line2D> sides = new ArrayList<>();
+        for (int i = 0; i < corners.size(); i++) {
+            sides.add(new Line2D(corners.get(i), corners.get((i + 1) % corners.size())));
+        }
+        return sides;
+    }
+
+    private void clearAdditionalInfo() {
+        points.clear();
+        sides.clear();
     }
 }

@@ -12,10 +12,10 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class GUI extends Application {
+
     @Override
     public void start(Stage stage) throws IOException {
-        Image icon = new Image("C:\\Users\\goeppl\\IdeaProjects\\PhysicsEngineFX\\" +
-                "src\\main\\resources\\Images\\EngineLogo.PNG");
+        Image icon = new Image(System.getProperty("user.dir") + "\\src\\main\\resources\\Images\\EngineLogo.PNG");
         FXMLLoader loader = new FXMLLoader(getClass().getResource("EngineView.fxml"));
         Parent root = loader.load();
 

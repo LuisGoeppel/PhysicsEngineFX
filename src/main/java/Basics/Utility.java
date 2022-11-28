@@ -23,18 +23,18 @@ public class Utility {
                     case TRIANGLE:
                         return CollisionPolyVsPoly((Triangle2D) (lhs), (Polygon2D) (rhs));
                     case CIRCLE:
-                        return CollisionCircleVsTri((Circle2D) (rhs), (Triangle2D) (lhs));
+                        return CollisionCircleVsPoly((Circle2D) (rhs), (Polygon2D) (lhs));
                 }
             case CIRCLE:
                 switch (rhs.getObjectType()) {
                     case BOX:
                         return CollisionBoxVsCircle((Box2D) (rhs), (Circle2D) (lhs));
                     case TRIANGLE:
-                        return CollisionCircleVsTri((Circle2D) (lhs), (Triangle2D) (rhs));
+                        return CollisionCircleVsPoly((Circle2D) (lhs), (Triangle2D) (rhs));
                     case CIRCLE:
                         return CollisionCircleVsCircle((Circle2D) (lhs), (Circle2D) (rhs));
                     case ROTATION_BOX:
-                        return CollisionRotBoxVsCircle((RotationBox2D) (rhs), (Circle2D) lhs);
+                        return CollisionCircleVsPoly((Circle2D) (lhs), (Polygon2D) (rhs));
                 }
             case ROTATION_BOX:
                 switch (rhs.getObjectType()) {
@@ -43,32 +43,26 @@ public class Utility {
                     case TRIANGLE:
                         return CollisionPolyVsPoly((RotationBox2D) (lhs), (Polygon2D) (rhs));
                     case CIRCLE:
-                        return CollisionRotBoxVsCircle((RotationBox2D) (lhs), (Circle2D) (rhs));
+                        return CollisionCircleVsPoly((Circle2D) (rhs), (Polygon2D) (lhs));
                 }
             default:
                 return false;
         }
     }
 
-    public static boolean CollisionCircleVsTri(Circle2D lhs, Triangle2D rhs) {
+    public static boolean CollisionCircleVsPoly(Circle2D lhs, Polygon2D rhs) {
 
         //Temporary, not optimal
-        int additionalPointsPerSide = 5;
-        List<Vec2D> points = rhs.getPoints();
-        List<Vec2D> triPoints = new ArrayList<>();
-        triPoints.addAll(points);
-        for (int j = 0; j < points.size(); j++) {
-            Vec2D start = points.get((j + 1) % points.size());
-            Vec2D side = points.get(j).sub(start);
-            for (int i = 0; i < additionalPointsPerSide; i++) {
-                triPoints.add(start.add(side.mult((double)(i + 1) / (additionalPointsPerSide + 1))));
-            }
-        }
         if (rhs.contains(lhs.getCenter())) {
             return true;
         }
-        for (Vec2D v : triPoints) {
+        for (Vec2D v : rhs.getPoints()) {
             if (lhs.contains(v)) {
+                return true;
+            }
+        }
+        for (Vec2D v : lhs.getEdgePoints(16)) {
+            if (rhs.contains(v)) {
                 return true;
             }
         }
@@ -96,9 +90,7 @@ public class Utility {
     }
 
     public static boolean CollisionBoxVsCircle(Box2D lhs, Circle2D rhs) {
-        if (!CollisionPolyVsPoly(lhs, rhs.getOuterBox())) {
-            return false;
-        }
+
         Line2D centerToCenter = new Line2D(lhs.getCenter(), rhs.getCenter());
         Vec2D closestPoint = null;
         for (Line2D l : lhs.getSides()) {
@@ -111,31 +103,6 @@ public class Utility {
             return true;
         }
         return (closestPoint.sub(rhs.getCenter())).getLengthSquared() <= rhs.getRadius() * rhs.getRadius();
-    }
-
-    public static boolean CollisionRotBoxVsCircle(RotationBox2D lhs, Circle2D rhs) {
-
-        //Not optional
-        if (lhs.contains(rhs.getCenter())) {
-            return true;
-        }
-        int additionalPointsPerSide = 9;
-        List<Vec2D> rotBoxPoints = new ArrayList<>();
-        List<Vec2D> points = lhs.getPoints();
-        rotBoxPoints.addAll(points);
-        for (int j = 0; j < points.size(); j++) {
-            Vec2D start = points.get((j + 1) % points.size());
-            Vec2D side = points.get(j).sub(start);
-            for (int i = 0; i < additionalPointsPerSide; i++) {
-                rotBoxPoints.add(start.add(side.mult((double)(i + 1) / (additionalPointsPerSide + 1))));
-            }
-        }
-        for (Vec2D point : rotBoxPoints) {
-            if (rhs.contains(point)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public static boolean areParallel (Line2D lhs, Line2D rhs) {

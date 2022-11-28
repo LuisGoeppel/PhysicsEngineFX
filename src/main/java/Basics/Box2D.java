@@ -8,19 +8,32 @@ public class Box2D extends Polygon2D {
     private Vec2D topRight;
     private Vec2D bottomLeft;
 
+    //additional Information
+    List<Vec2D> points;
+    List<Line2D> sides;
+
     public Box2D(Vec2D bottomLeft, Vec2D topRight) {
         this.topRight = topRight;
         this.bottomLeft = bottomLeft;
+
+        points = new ArrayList<>();
+        sides = new ArrayList<>();
     }
 
     public Box2D (double left, double top, double right, double bottom) {
         topRight = new Vec2D(right, top);
         bottomLeft = new Vec2D(left, bottom);
+
+        points = new ArrayList<>();
+        sides = new ArrayList<>();
     }
 
     public Box2D (Vec2D bottomLeft, double width, double height) {
         this.bottomLeft = bottomLeft;
         topRight = new Vec2D(bottomLeft.x + width, bottomLeft.y + height);
+
+        points = new ArrayList<>();
+        sides = new ArrayList<>();
     }
 
     public Vec2D getTopLeft() {
@@ -37,7 +50,9 @@ public class Box2D extends Polygon2D {
 
     @Override
     public List<Vec2D> getPoints() {
-        List<Vec2D> points = Arrays.asList(getBottomLeft(), getBottomRight(), getTopLeft(), getTopRight());
+        if (points.isEmpty()) {
+            points = calculatePoints();
+        }
         return points;
     }
 
@@ -104,11 +119,9 @@ public class Box2D extends Polygon2D {
 
     @Override
     public List<Line2D> getSides() {
-        List<Line2D> sides = new ArrayList<>();
-        sides.add(new Line2D(getTopLeft(), topRight));
-        sides.add(new Line2D(topRight, getBottomRight()));
-        sides.add(new Line2D(getBottomRight(), bottomLeft));
-        sides.add(new Line2D(bottomLeft, getTopLeft()));
+        if (sides.isEmpty()) {
+            sides = calculateSides();
+        }
         return sides;
     }
 
@@ -147,5 +160,19 @@ public class Box2D extends Polygon2D {
         }
         Box2D obj = (Box2D) (rhs);
         return topRight.equals(obj.topRight) && bottomLeft.equals(obj.bottomLeft);
+    }
+
+    private List<Line2D> calculateSides() {
+        List<Line2D> sides = new ArrayList<>();
+        sides.add(new Line2D(getTopLeft(), topRight));
+        sides.add(new Line2D(topRight, getBottomRight()));
+        sides.add(new Line2D(getBottomRight(), bottomLeft));
+        sides.add(new Line2D(bottomLeft, getTopLeft()));
+        return sides;
+    }
+
+    private List<Vec2D> calculatePoints() {
+        List<Vec2D> points = Arrays.asList(getBottomLeft(), getBottomRight(), getTopLeft(), getTopRight());
+        return points;
     }
 }
