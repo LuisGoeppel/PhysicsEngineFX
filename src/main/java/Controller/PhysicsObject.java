@@ -3,6 +3,7 @@ package Controller;
 import Basics.Collider;
 import javafx.scene.shape.Shape;
 
+@SuppressWarnings("ALL")
 public class PhysicsObject {
     public Collider object;
     public Shape representation;

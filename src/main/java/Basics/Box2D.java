@@ -13,11 +13,6 @@ public class Box2D extends Polygon2D {
         this.bottomLeft = bottomLeft;
     }
 
-    public Box2D (double left, double top, double right, double bottom) {
-        topRight = new Vec2D(right, top);
-        bottomLeft = new Vec2D(left, bottom);
-    }
-
     public Box2D (Vec2D bottomLeft, double width, double height) {
         this.bottomLeft = bottomLeft;
         topRight = new Vec2D(bottomLeft.x + width, bottomLeft.y + height);
@@ -153,7 +148,6 @@ public class Box2D extends Polygon2D {
     }
 
     private List<Vec2D> calculatePoints() {
-        List<Vec2D> points = Arrays.asList(getBottomLeft(), getBottomRight(), getTopLeft(), getTopRight());
-        return points;
+        return Arrays.asList(getBottomLeft(), getBottomRight(), getTopLeft(), getTopRight());
     }
 }

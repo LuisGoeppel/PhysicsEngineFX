@@ -36,11 +36,6 @@ public class Circle2D extends Collider {
         edgePoints.clear();
     }
 
-    public Box2D getOuterBox() {
-        return new Box2D(new Vec2D(center.x - radius, center.y - radius),
-                new Vec2D(center.x + radius, center.y + radius));
-    }
-
     public List<Vec2D> getEdgePoints(int nPoints) {
         if (edgePoints.size() != nPoints) {
             edgePoints = calculateEdgePoints(nPoints);

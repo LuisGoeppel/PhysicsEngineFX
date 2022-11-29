@@ -1,8 +1,5 @@
 package Basics;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Utility {
 
     public static boolean isColliding(Collider lhs, Collider rhs) {
@@ -125,6 +122,7 @@ public class Utility {
         return new Vec2D(x, y);
     }
 
+    @SuppressWarnings("SuspiciousNameCombination")
     public static boolean isIntersectionInsideBoundaries (Line2D lhs, Line2D rhs, boolean inclusive) {
         if (areParallel(lhs, rhs)) {
             return false;
@@ -134,6 +132,7 @@ public class Utility {
         }
         Vec2D intersection = getIntersection(lhs, rhs);
 
+        assert intersection != null;
         if (inclusive) {
             return isBetween(intersection.x, lhs.getFirst().x, lhs.getSecond().x) &&
                     isBetween(intersection.y, lhs.getFirst().y, lhs.getSecond().y) &&
@@ -145,17 +144,6 @@ public class Utility {
                     isBetweenExclusive(intersection.x, rhs.getFirst().x, rhs.getSecond().x) &&
                     isBetweenExclusive(intersection.y, rhs.getFirst().y, rhs.getSecond().y);
         }
-    }
-
-    public static boolean isIntersectionInsideBoundaries (List<Line2D> lhs, List<Line2D> rhs, boolean inclusive) {
-        for (Line2D l : lhs) {
-            for (Line2D r : rhs) {
-                if (isIntersectionInsideBoundaries(l, r, inclusive)) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     public static double getAreaTriangle(Triangle2D triangle2D) {
@@ -190,9 +178,5 @@ public class Utility {
 
     public static boolean isRect (Vec2D p1, Vec2D p2, Vec2D p3, Vec2D p4) {
         return p4.sub(p1).dotProduct(p2.sub(p1)) == 0 && p4.sub(p3).dotProduct(p2.sub(p3)) == 0;
-    }
-
-    public static double getAngle(Vec2D lhs, Vec2D rhs) {
-        return Math.acos(lhs.dotProduct(rhs) / (lhs.getLength() * rhs.getLength()));
     }
 }

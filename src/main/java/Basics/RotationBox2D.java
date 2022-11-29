@@ -106,8 +106,8 @@ public class RotationBox2D extends Polygon2D {
         List<Line2D> sides = getSides();
         Line2D pointToTop = new Line2D(point, new Vec2D(point.x, -10));
         int nCrossedSides = 0;
-        for (int i = 0; i < sides.size(); i++) {
-            if (Utility.isIntersectionInsideBoundaries(pointToTop, sides.get(i), true)) {
+        for (Line2D side : sides) {
+            if (Utility.isIntersectionInsideBoundaries(pointToTop, side, true)) {
                 nCrossedSides++;
             }
         }
@@ -123,9 +123,9 @@ public class RotationBox2D extends Polygon2D {
     public double getBottom() {
         List<Vec2D> points = getPoints();
         double minY = Integer.MAX_VALUE;
-        for (int i = 0; i < points.size(); i++) {
-            if (points.get(i).y < minY) {
-                minY = points.get(i).y;
+        for (Vec2D point : points) {
+            if (point.y < minY) {
+                minY = point.y;
             }
         }
         return minY;
@@ -135,9 +135,9 @@ public class RotationBox2D extends Polygon2D {
     public double getTop() {
         List<Vec2D> points = getPoints();
         double maxY = Integer.MIN_VALUE;
-        for (int i = 0; i < points.size(); i++) {
-            if (points.get(i).y > maxY) {
-                maxY = points.get(i).y;
+        for (Vec2D point : points) {
+            if (point.y > maxY) {
+                maxY = point.y;
             }
         }
         return maxY;
@@ -147,9 +147,9 @@ public class RotationBox2D extends Polygon2D {
     public double getLeft() {
         List<Vec2D> points = getPoints();
         double minX = Integer.MAX_VALUE;
-        for (int i = 0; i < points.size(); i++) {
-            if (points.get(i).x < minX) {
-                minX = points.get(i).x;
+        for (Vec2D point : points) {
+            if (point.x < minX) {
+                minX = point.x;
             }
         }
         return minX;
@@ -159,9 +159,9 @@ public class RotationBox2D extends Polygon2D {
     public double getRight() {
         List<Vec2D> points = getPoints();
         double maxX = Integer.MIN_VALUE;
-        for (int i = 0; i < points.size(); i++) {
-            if (points.get(i).x < maxX) {
-                maxX = points.get(i).x;
+        for (Vec2D point : points) {
+            if (point.x < maxX) {
+                maxX = point.x;
             }
         }
         return maxX;
@@ -191,6 +191,7 @@ public class RotationBox2D extends Polygon2D {
         List<Vec2D> corners = new ArrayList<>();
 
         Vec2D v1 = new Vec2D(Math.cos(rotationAngle), Math.sin(rotationAngle));
+        //noinspection SuspiciousNameCombination
         Vec2D v2 = new Vec2D(-1 * v1.y, v1.x);
 
         v1 = v1.mult(width/2);

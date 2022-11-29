@@ -2,9 +2,9 @@ package Basics;
 
 public class Line2D {
 
-    private Vec2D first;
-    private Vec2D second;
-    private boolean hasBoundaries;
+    private final Vec2D first;
+    private final Vec2D second;
+    private final boolean hasBoundaries;
 
     public Line2D(Vec2D first, Vec2D second) {
         if (first.compareTo(second) < 0) {
@@ -20,26 +20,13 @@ public class Line2D {
         hasBoundaries = true;
     }
 
-    public Line2D(Vec2D first, Vec2D second, boolean boundaries) {
-        if (first.compareTo(second) < 0) {
-            this.first = first;
-            this.second = second;
-        } else if (first.compareTo(second) > 0) {
-            this.first = second;
-            this.second = first;
-        } else {
-            throw new IllegalArgumentException("The two Points" +
-                    " to declare a Line cannot be the same!");
-        }
-        hasBoundaries = boundaries;
-    }
-
     public Line2D(double m, double t) {
         first = new Vec2D(0, t);
         second = new Vec2D(1, m + t);
         hasBoundaries = false;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean hasBoundaries() {
         return hasBoundaries;
     }

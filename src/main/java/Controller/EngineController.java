@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class EngineController {
 
     @FXML
@@ -163,11 +164,9 @@ public class EngineController {
 
         //Game Ticks
         timer = new Timer();
-
         task = new TimerTask() {
             @Override
             public void run() {
-                long t1 = System.currentTimeMillis();
                 if (simulate) {
                     gravity.tick();
                     Platform.runLater(() -> updateProperties());
@@ -404,6 +403,7 @@ public class EngineController {
         setPropertyPanesInvisible();
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean collidesWithOtherObjects(Collider rhs) {
 
         for (PhysicsObject o : objects) {
@@ -616,9 +616,7 @@ public class EngineController {
     }
 
     private void playerJump() {
-        if (playerElementIndex != -1 && simulate) {
-            //Not implemented yet
-        }
+
     }
 
     private void setPropertyPanesInvisible() {

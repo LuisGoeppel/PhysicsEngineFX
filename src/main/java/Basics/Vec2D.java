@@ -34,6 +34,7 @@ public class Vec2D implements Comparable<Vec2D> {
         return x * x + y * y;
     }
 
+    @SuppressWarnings("unused")
     public Vec2D getNormalizedVector () {
         double length = getLength();
         return new Vec2D(x / length, y / length);
@@ -61,13 +62,7 @@ public class Vec2D implements Comparable<Vec2D> {
     @Override
     public int compareTo(Vec2D rhs) {
         if (x == rhs.x) {
-            if (y == rhs.y) {
-                return 0;
-            } else if (y < rhs.y) {
-                return -1;
-            } else {
-                return 1;
-            }
+            return Double.compare(y, rhs.y);
         } else if (x < rhs.x) {
             return -1;
         } else {

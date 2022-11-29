@@ -8,9 +8,10 @@ import Controller.PhysicsObject;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class Gravity {
 
-    private class GravityObject {
+    private static class GravityObject {
         public Collider object;
         public Boolean applyGravity;
         public Boolean isCollidable;
@@ -67,7 +68,7 @@ public class Gravity {
     }
 
     public void add(Collider m, boolean applyGravity, boolean isCollidable, double bounciness) {
-        gravityObjects.add(new GravityObject(m, applyGravity, isCollidable,0, bounciness));
+        gravityObjects.add(new GravityObject(m, applyGravity, isCollidable, 0, bounciness));
     }
 
     public void giveGravityAt(int index) {
