@@ -8,32 +8,19 @@ public class Box2D extends Polygon2D {
     private Vec2D topRight;
     private Vec2D bottomLeft;
 
-    //additional Information
-    List<Vec2D> points;
-    List<Line2D> sides;
-
     public Box2D(Vec2D bottomLeft, Vec2D topRight) {
         this.topRight = topRight;
         this.bottomLeft = bottomLeft;
-
-        points = new ArrayList<>();
-        sides = new ArrayList<>();
     }
 
     public Box2D (double left, double top, double right, double bottom) {
         topRight = new Vec2D(right, top);
         bottomLeft = new Vec2D(left, bottom);
-
-        points = new ArrayList<>();
-        sides = new ArrayList<>();
     }
 
     public Box2D (Vec2D bottomLeft, double width, double height) {
         this.bottomLeft = bottomLeft;
         topRight = new Vec2D(bottomLeft.x + width, bottomLeft.y + height);
-
-        points = new ArrayList<>();
-        sides = new ArrayList<>();
     }
 
     public Vec2D getTopLeft() {
@@ -50,10 +37,7 @@ public class Box2D extends Polygon2D {
 
     @Override
     public List<Vec2D> getPoints() {
-        if (points.isEmpty()) {
-            points = calculatePoints();
-        }
-        return points;
+        return calculatePoints();
     }
 
     public Vec2D getBottomRight() {
@@ -119,10 +103,7 @@ public class Box2D extends Polygon2D {
 
     @Override
     public List<Line2D> getSides() {
-        if (sides.isEmpty()) {
-            sides = calculateSides();
-        }
-        return sides;
+        return calculateSides();
     }
 
     @Override

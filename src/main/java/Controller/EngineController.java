@@ -72,11 +72,12 @@ public class EngineController {
     private final String btnBackgroundColor = "#dedede";
     private final String selectedColor = "LightGreen";
     private final Color transparent = new Color(0, 0, 0, 0);
+    private final int maxFPS = 60;
 
     public void init() {
         System.out.println("Initializing");
         setBtnStyleDefault();
-        gravity = new Gravity(604);
+        gravity = new Gravity(604, maxFPS);
 
         selected = null;
         simulate = false;
@@ -162,9 +163,11 @@ public class EngineController {
 
         //Game Ticks
         timer = new Timer();
+
         task = new TimerTask() {
             @Override
             public void run() {
+                long t1 = System.currentTimeMillis();
                 if (simulate) {
                     gravity.tick();
                     Platform.runLater(() -> updateProperties());
@@ -172,7 +175,7 @@ public class EngineController {
                 Platform.runLater(() -> drawObjects());
             }
         };
-        timer.schedule(task, 0, 16);
+        timer.schedule(task, 0, 1000 / maxFPS);
     }
 
     public void keyPressed(KeyEvent e) {

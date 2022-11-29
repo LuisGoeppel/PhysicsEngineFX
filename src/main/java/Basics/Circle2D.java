@@ -24,6 +24,7 @@ public class Circle2D extends Collider {
 
     public void setCenter(Vec2D center) {
         this.center = center;
+        edgePoints.clear();
     }
 
     public double getRadius() {
@@ -32,6 +33,7 @@ public class Circle2D extends Collider {
 
     public void setRadius(double radius) {
         this.radius = radius;
+        edgePoints.clear();
     }
 
     public Box2D getOuterBox() {
@@ -49,6 +51,7 @@ public class Circle2D extends Collider {
     @Override
     public void move(Vec2D dir) {
         center = center.add(dir);
+        edgePoints.clear();
     }
 
     @Override
@@ -87,7 +90,7 @@ public class Circle2D extends Collider {
     }
 
     @Override
-    public String  toString() {
+    public String toString() {
         return "Circle2D: [center = " + center + ", radius = " + radius + "]";
     }
 

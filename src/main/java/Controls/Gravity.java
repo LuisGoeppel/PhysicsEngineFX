@@ -35,12 +35,13 @@ public class Gravity {
         }
     }
 
-    private List<GravityObject> gravityObjects;
-    private final double GRAVITY_CONSTANT = 0.1635; //60 FPS
-    private double bottomYCord;
+    private final List<GravityObject> gravityObjects;
+    private final double GRAVITY_CONSTANT = 9.81;
+    private final double bottomYCord;
+    private final double gameFPS;
 
-    public Gravity(List<Collider> objects, List<Boolean> applyGravity,
-                   List<Boolean> collidable, List<Double> bounciness, double bottomYCord) {
+    public Gravity(List<Collider> objects, List<Boolean> applyGravity, List<Boolean> collidable,
+                   List<Double> bounciness, double bottomYCord, double gameFPS) {
 
         if (objects.size() != applyGravity.size()) {
             throw new IllegalArgumentException("Sizes do not match!");
@@ -52,11 +53,13 @@ public class Gravity {
             gravityObjects.add(gravityObject);
         }
         this.bottomYCord = bottomYCord;
+        this.gameFPS = gameFPS;
     }
 
-    public Gravity(double bottomYCord) {
+    public Gravity(double bottomYCord, double gameFPS) {
         gravityObjects = new ArrayList<>();
         this.bottomYCord = bottomYCord;
+        this.gameFPS = gameFPS;
     }
 
     public void add(PhysicsObject o) {
@@ -77,9 +80,9 @@ public class Gravity {
 
     public void updateElements(List<PhysicsObject> physicObjects) {
         gravityObjects.clear();
-        for (int i = 0; i < physicObjects.size(); i++) {
-            add(physicObjects.get(i).object, physicObjects.get(i).hasGravity,
-                    physicObjects.get(i).isCollidable, physicObjects.get(i).bounciness);
+        for (PhysicsObject physicObject : physicObjects) {
+            add(physicObject.object, physicObject.hasGravity,
+                    physicObject.isCollidable, physicObject.bounciness);
         }
     }
 
@@ -203,11 +206,7 @@ public class Gravity {
                 activeObject.move(new Vec2D(0, -current));
             }
 
-            if (Utility.isColliding(activeObject, standingObject)) {
-                nextDown = false;
-            } else {
-                nextDown = true;
-            }
+            nextDown = !Utility.isColliding(activeObject, standingObject);
         }
     }
 
@@ -215,7 +214,8 @@ public class Gravity {
         if (nTicks == 0) {
             return 0;
         }
-        return 0.5 * GRAVITY_CONSTANT * (nTicks) * (nTicks)
-                - 0.5 * GRAVITY_CONSTANT * ((nTicks - 1)) * ((nTicks - 1));
+
+        return 0.5 * (GRAVITY_CONSTANT / gameFPS) * (nTicks) * (nTicks)
+                - 0.5 * (GRAVITY_CONSTANT / gameFPS) * ((nTicks - 1)) * ((nTicks - 1));
     }
 }
