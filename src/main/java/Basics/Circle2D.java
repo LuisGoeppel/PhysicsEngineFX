@@ -91,7 +91,7 @@ public class Circle2D extends Collider {
 
     private List<Vec2D> calculateEdgePoints(int nPoints) {
         List<Vec2D> edgePoints = new ArrayList<>();
-        double degJump = 2 * Math.PI / (float) (nPoints);
+        double degJump = 2 * Math.PI / (float)(nPoints);
         double currentDeg = 0;
         for (int i = 0; i < nPoints; i++) {
             Vec2D vec2D = new Vec2D(radius * Math.cos(currentDeg), radius * Math.sin(currentDeg));

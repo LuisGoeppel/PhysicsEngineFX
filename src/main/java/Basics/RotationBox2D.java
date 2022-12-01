@@ -55,7 +55,7 @@ public class RotationBox2D extends Polygon2D {
         return height;
     }
 
-    public double getRotationAngle() {
+    public double getRotationAngleDeg() {
         return convertAngleToDeg(rotationAngle);
     }
 

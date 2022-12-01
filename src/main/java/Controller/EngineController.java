@@ -78,7 +78,7 @@ public class EngineController {
     public void init() {
         System.out.println("Initializing");
         setBtnStyleDefault();
-        gravity = new Gravity(604, maxFPS);
+        gravity = new Gravity(maxFPS);
 
         selected = null;
         simulate = false;
@@ -95,7 +95,7 @@ public class EngineController {
             modifySelectedElement();
             if (selected != null && objects.size() < maxObjects) {
                 double x = mouseEvent.getX();
-                double y = mouseEvent.getY();
+                double y = swapY(mouseEvent.getY());
                 switch (selected) {
                     case BOX:
                         Vec2D bottomLeftBox = new Vec2D(x - currentSize/2, y - currentSize/2);
@@ -143,7 +143,8 @@ public class EngineController {
 
                 boolean hasSelected = false;
                 for (int i = 0; i < objects.size(); i++) {
-                    if (objects.get(i).object.contains(new Vec2D(mouseEvent.getX(), mouseEvent.getY()))) {
+                    Vec2D currentMousePos = new Vec2D(mouseEvent.getX(), swapY(mouseEvent.getY()));
+                    if (objects.get(i).object.contains(currentMousePos)) {
                         selectedElementIndex = i;
                         hasSelected = true;
                         showSelectedElementOptions();
@@ -346,7 +347,7 @@ public class EngineController {
                 Double.parseDouble(field_Y.getText())));
         currentBox.setWidth(Double.parseDouble(field_width.getText()));
         currentBox.setHeight(Double.parseDouble(field_height.getText()));
-        if (collidesWithOtherObjects(currentBox, selectedElementIndex)) {
+        if (collidesWithOtherObjects(currentBox, selectedElementIndex) || !shapeInsideGameRect(currentBox)) {
             objects.get(selectedElementIndex).object = backupIfCollidingBox;
         }
     }
@@ -357,7 +358,7 @@ public class EngineController {
         currentCircle.setCenter(new Vec2D(Double.parseDouble(field_X.getText()),
                 Double.parseDouble(field_Y.getText())));
         currentCircle.setRadius(Double.parseDouble(field_width.getText()));
-        if (collidesWithOtherObjects(currentCircle, selectedElementIndex)) {
+        if (collidesWithOtherObjects(currentCircle, selectedElementIndex) || !shapeInsideGameRect(currentCircle)) {
             objects.get(selectedElementIndex).object = backupIfCollidingCircle;
         }
     }
@@ -371,7 +372,7 @@ public class EngineController {
                 Double.parseDouble(fieldBY.getText())));
         currentTri.setC(new Vec2D(Double.parseDouble(fieldCX.getText()),
                 Double.parseDouble(fieldCY.getText())));
-        if (collidesWithOtherObjects(currentTri, selectedElementIndex)) {
+        if (collidesWithOtherObjects(currentTri, selectedElementIndex) || !shapeInsideGameRect(currentTri)) {
             objects.get(selectedElementIndex).object = backupIfCollidingTri;
         }
     }
@@ -384,7 +385,7 @@ public class EngineController {
         currentRotBox.setWidth(Double.parseDouble(field_widthRotRect.getText()));
         currentRotBox.setHeight(Double.parseDouble(field_heightRotRect.getText()));
         currentRotBox.setRotationAngle(Double.parseDouble(field_angleRotRect.getText()));
-        if (collidesWithOtherObjects(currentRotBox, selectedElementIndex)) {
+        if (collidesWithOtherObjects(currentRotBox, selectedElementIndex) || !shapeInsideGameRect(currentRotBox)) {
             objects.get(selectedElementIndex).object = backupIfCollidingRotBox;
         }
     }
@@ -453,6 +454,29 @@ public class EngineController {
                 return gameBox.contains(bottomLeftTri) && gameBox.contains(bottomRightTri) && gameBox.contains(top);
             default:
                 return false;
+        }
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean shapeInsideGameRect(Collider shape) {
+        switch (shape.getObjectType()) {
+            case CIRCLE:
+                Circle2D shapeCircle = (Circle2D)(shape);
+                return 0 < shapeCircle.getCenter().x - shapeCircle.getRadius() && shapeCircle.getCenter().x +
+                        shapeCircle.getRadius() < gamePane.getWidth() - 5 && 0 < shapeCircle.getCenter().y
+                        - shapeCircle.getRadius() && shapeCircle.getCenter().y + shapeCircle.getRadius() < gamePane.getHeight() - 5;
+            case TRIANGLE:
+            case ROTATION_BOX:
+                Polygon2D shapePolygon = (Polygon2D)(shape);
+                Collider gameRect = new Box2D(new Vec2D(0, 0), gamePane.getWidth(), gamePane.getHeight());
+                for (Vec2D point : shapePolygon.getPoints()) {
+                    if (!gameRect.contains(point)) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                return true;
         }
     }
 
@@ -557,7 +581,7 @@ public class EngineController {
         field_YRotRect.setText(convertToStringOneDecimal(currentRotBox.getCenter().y));
         field_widthRotRect.setText(convertToStringOneDecimal(currentRotBox.getWidth()));
         field_heightRotRect.setText(convertToStringOneDecimal(currentRotBox.getHeight()));
-        field_angleRotRect.setText(convertToStringOneDecimal(currentRotBox.getRotationAngle()));
+        field_angleRotRect.setText(convertToStringOneDecimal(currentRotBox.getRotationAngleDeg()));
     }
 
     private void updateProperties() {
@@ -651,7 +675,7 @@ public class EngineController {
 
                     Rectangle rect = (Rectangle)(objects.get(i).representation);
                     rect.setLayoutX(box.getLeft());
-                    rect.setLayoutY(box.getBottom());
+                    rect.setLayoutY(swapY(box.getTop()));
                     rect.setWidth(box.getWidth());
                     rect.setHeight(box.getHeight());
                     break;
@@ -661,10 +685,10 @@ public class EngineController {
                     if (objects.get(i).representation == null) {
                         List<Vec2D> points = boxRot.getPoints();
                         Polygon rotBox = new Polygon(
-                                points.get(0).x, points.get(0).y,
-                                points.get(1).x, points.get(1).y,
-                                points.get(2).x, points.get(2).y,
-                                points.get(3).x, points.get(3).y
+                                points.get(0).x, swapY(points.get(0).y),
+                                points.get(1).x, swapY(points.get(1).y),
+                                points.get(2).x, swapY(points.get(2).y),
+                                points.get(3).x, swapY(points.get(3).y)
                         );
                         initShape(rotBox, i);
                     }
@@ -673,7 +697,7 @@ public class EngineController {
                     List<Vec2D> points = boxRot.getPoints();
                     for(int j = 0; j < points.size(); j++) {
                         rectRot.getPoints().set(j * 2, points.get(j).x);
-                        rectRot.getPoints().set(j * 2 + 1, points.get(j).y);
+                        rectRot.getPoints().set(j * 2 + 1, swapY(points.get(j).y));
                     }
                     break;
                 case CIRCLE:
@@ -685,7 +709,7 @@ public class EngineController {
                     }
                     Circle circle = (Circle)(objects.get(i).representation);
                     circle.setCenterX(c.getCenter().x);
-                    circle.setCenterY(c.getCenter().y);
+                    circle.setCenterY(swapY(c.getCenter().y));
                     circle.setRadius(c.getRadius());
                     break;
                 case TRIANGLE:
@@ -693,19 +717,19 @@ public class EngineController {
 
                     if (objects.get(i).representation == null) {
                         Polygon polygon = new Polygon(
-                                triangle2D.getA().x, triangle2D.getA().y,
-                                triangle2D.getB().x, triangle2D.getB().y,
-                                triangle2D.getC().x, triangle2D.getC().y
+                                triangle2D.getA().x, swapY(triangle2D.getA().y),
+                                triangle2D.getB().x, swapY(triangle2D.getB().y),
+                                triangle2D.getC().x, swapY(triangle2D.getC().y)
                         );
                         initShape(polygon, i);
                     }
                     Polygon polygon = (Polygon) (objects.get(i).representation);
                     polygon.getPoints().set(0, triangle2D.getA().x);
-                    polygon.getPoints().set(1, triangle2D.getA().y);
+                    polygon.getPoints().set(1, swapY(triangle2D.getA().y));
                     polygon.getPoints().set(2, triangle2D.getB().x);
-                    polygon.getPoints().set(3, triangle2D.getB().y);
+                    polygon.getPoints().set(3, swapY(triangle2D.getB().y));
                     polygon.getPoints().set(4, triangle2D.getC().x);
-                    polygon.getPoints().set(5, triangle2D.getC().y);
+                    polygon.getPoints().set(5, swapY(triangle2D.getC().y));
                 default:
                     break;
             }
@@ -744,9 +768,9 @@ public class EngineController {
                     break;
                 case TRIANGLE:
                     selectionPoly.getPoints().clear();
-                    selectionPoly.getPoints().addAll(x - currentSize/2, y - currentSize/2);
-                    selectionPoly.getPoints().addAll(x + currentSize/2, y - currentSize/2);
-                    selectionPoly.getPoints().addAll(x , y + currentSize/2);
+                    selectionPoly.getPoints().addAll(x - currentSize/2, y + currentSize/2);
+                    selectionPoly.getPoints().addAll(x + currentSize/2, y + currentSize/2);
+                    selectionPoly.getPoints().addAll(x , y - currentSize/2);
                     if (!selectionPoly.isVisible()) {
                         selectionPoly.setVisible(true);
                     }
@@ -766,5 +790,9 @@ public class EngineController {
         shape.setStrokeWidth(5);
         objects.get(index).representation = shape;
         gamePane.getChildren().add(shape);
+    }
+
+    private double swapY(double y) {
+        return 604 - y;
     }
 }
