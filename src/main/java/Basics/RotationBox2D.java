@@ -59,6 +59,10 @@ public class RotationBox2D extends Polygon2D {
         return convertAngleToDeg(rotationAngle);
     }
 
+    public double getRotationAngleRad() {
+        return rotationAngle;
+    }
+
     public void setCenter(Vec2D center) {
         this.center = center;
         clearAdditionalInfo();
