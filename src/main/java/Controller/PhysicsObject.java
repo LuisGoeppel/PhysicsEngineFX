@@ -12,7 +12,8 @@ public class PhysicsObject {
     public boolean hasGravity;
     public boolean isCollidable;
     public double bounciness;
-    public boolean hasChanged;
+    public boolean hasChangedPosition;
+    public boolean hasChangedSize;
 
     public PhysicsObject(Collider object, Shape representation, boolean hasGravity,
                          boolean isCollidable, double bounciness, int id) {
@@ -23,6 +24,7 @@ public class PhysicsObject {
         this.bounciness = bounciness;
         this.objectID = id;
 
-        this.hasChanged = true;
+        this.hasChangedPosition = true;
+        this.hasChangedSize = true;
     }
 }

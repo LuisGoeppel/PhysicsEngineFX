@@ -346,7 +346,7 @@ public class Gravity {
         for (GravityObject gravityObject : gravityObjects) {
             if (gravityObject.nextMove.x != 0 || gravityObject.nextMove.y != 0) {
                 gravityObject.object.move(gravityObject.nextMove);
-                gravityObject.matchingPhysicsObject.hasChanged = true;
+                gravityObject.matchingPhysicsObject.hasChangedPosition = true;
             }
         }
     }
