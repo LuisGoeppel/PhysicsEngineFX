@@ -4,6 +4,7 @@ import Basics.*;
 import Controls.Gravity;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Cursor;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -68,6 +69,7 @@ public class EngineController {
     private Circle selectionCircle;
     private Polygon selectionPoly;
     private Vec2D currentMousePos;
+    private Vec2D backupPosition;
     private boolean mousePosChanged, sizeChanged;
     private Timer timer;
     private TimerTask task;
@@ -90,12 +92,13 @@ public class EngineController {
         playerElementIndex = -1;
         currentSize = defaultSize;
         currentMousePos = new Vec2D(0, 0);
+        backupPosition = new Vec2D(0, 0);
         mousePosChanged = false;
         sizeChanged = false;
         setPropertyPanesInvisible();
         initSelectionElements();
 
-        gamePane.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
+        gamePane.addEventHandler(MouseEvent.MOUSE_PRESSED, mouseEvent -> {
 
             modifySelectedElement();
             if (selected != null && objects.size() < maxObjects) {
@@ -156,6 +159,8 @@ public class EngineController {
                     if (objects.get(i).object.contains(currentMousePos)) {
                         selectedElementIndex = i;
                         hasSelected = true;
+                        if (!simulate) gamePane.setCursor(Cursor.OPEN_HAND);
+                        backupPosition = objects.get(i).object.getCenter();
                         showSelectedElementOptions();
                         break;
                     }
@@ -169,8 +174,36 @@ public class EngineController {
 
         gamePane.addEventHandler(MouseEvent.MOUSE_MOVED, mouseEvent -> {
             currentMousePos.x = mouseEvent.getX();
-            currentMousePos.y = mouseEvent.getY();
+            currentMousePos.y = swapY(mouseEvent.getY());
             mousePosChanged = true;
+
+            if (selectedElementIndex != -1 && objects.get(selectedElementIndex).
+                    object.contains(currentMousePos) && !simulate) {
+                gamePane.setCursor(Cursor.OPEN_HAND);
+            } else {
+                gamePane.setCursor(Cursor.DEFAULT);
+            }
+        });
+
+        gamePane.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouseEvent -> {
+            if (selectedElementIndex != -1 && !simulate) {
+                objects.get(selectedElementIndex).object.setCenter(
+                        new Vec2D (mouseEvent.getX(), swapY(mouseEvent.getY())));
+                objects.get(selectedElementIndex).hasChangedPosition = true;
+                gamePane.setCursor(Cursor.CLOSED_HAND);
+                updateProperties();
+            }
+        });
+
+        gamePane.addEventHandler(MouseEvent.MOUSE_RELEASED, mouseEvent -> {
+            if (selectedElementIndex != -1 && !simulate) {
+                if (!shapeInsideGameRect(objects.get(selectedElementIndex).object) ||
+                        collidesWithOtherObjects(objects.get(selectedElementIndex).object, selectedElementIndex)) {
+
+                    objects.get(selectedElementIndex).object.setCenter(backupPosition);
+                    objects.get(selectedElementIndex).hasChangedPosition = true;
+                }
+            }
         });
 
         //Game Ticks
@@ -484,6 +517,7 @@ public class EngineController {
                         - shapeCircle.getRadius() && shapeCircle.getCenter().y + shapeCircle.getRadius() < gamePane.getHeight() - 5;
             case TRIANGLE:
             case ROTATION_BOX:
+            case BOX:
                 Polygon2D shapePolygon = (Polygon2D)(shape);
                 Collider gameRect = new Box2D(new Vec2D(0, 0), gamePane.getWidth(), gamePane.getHeight());
                 for (Vec2D point : shapePolygon.getPoints()) {
@@ -758,7 +792,7 @@ public class EngineController {
         if (selected != null && curShapeInsideGameRect()) {
             if (mousePosChanged || sizeChanged) {
                 double x = currentMousePos.x;
-                double y = currentMousePos.y;
+                double y = swapY(currentMousePos.y);
 
                 switch (selected) {
                     case BOX:

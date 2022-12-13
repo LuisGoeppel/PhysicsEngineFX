@@ -69,6 +69,7 @@ public class Box2D extends Polygon2D {
         return new Vec2D(bottomLeft.x + (topRight.x - bottomLeft.x) / 2, bottomLeft.y + (topRight.y - bottomLeft.y) / 2);
     }
 
+    @Override
     public void setCenter(Vec2D v) {
         double width = getWidth();
         double height = getHeight();

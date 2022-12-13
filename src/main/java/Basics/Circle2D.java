@@ -22,6 +22,7 @@ public class Circle2D extends Collider {
         return center;
     }
 
+    @Override
     public void setCenter(Vec2D center) {
         this.center = center;
         edgePoints.clear();

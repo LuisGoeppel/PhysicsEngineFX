@@ -3,6 +3,7 @@ package Basics;
 public abstract class Collider {
 
     public abstract void move (Vec2D dir);
+    public abstract void setCenter(Vec2D center);
     public abstract boolean contains (Vec2D point);
     public abstract MovableObjectType getObjectType();
     public abstract double getBottom();

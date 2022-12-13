@@ -63,6 +63,7 @@ public class RotationBox2D extends Polygon2D {
         return rotationAngle;
     }
 
+    @Override
     public void setCenter(Vec2D center) {
         this.center = center;
         clearAdditionalInfo();
@@ -180,6 +181,19 @@ public class RotationBox2D extends Polygon2D {
     public String toString() {
         return "RotationBox2D: [center = " + center + ", width = " + width +
                 ", height = " + height + ", rotationAngle = " + rotationAngle + "]";
+    }
+
+    public Vec2D getTopPoint() {
+        List<Vec2D> points = getPoints();
+        Vec2D topPoint = points.get(0);
+        double maxY = Integer.MIN_VALUE;
+        for (Vec2D point : points) {
+            if (point.y > maxY) {
+                maxY = point.y;
+                topPoint = point;
+            }
+        }
+        return topPoint;
     }
 
 

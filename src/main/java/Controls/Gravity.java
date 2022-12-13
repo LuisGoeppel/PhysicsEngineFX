@@ -19,6 +19,7 @@ public class Gravity {
         public boolean upwardsForce;
         public int ticksSinceStart;
         public boolean movedToCollidingObject;
+        public double currentYFactor;
         public Vec2D nextMove;
         public GravityObject interactionPartner;
 
@@ -36,6 +37,7 @@ public class Gravity {
 
             upwardsForce = false;
             ticksSinceStart = 0;
+            currentYFactor = 1;
             movedToCollidingObject = false;
             nextMove = new Vec2D(0, 0);
             interactionPartner = null;
@@ -204,9 +206,7 @@ public class Gravity {
             active.nextMove = new Vec2D(active.nextMove.x, 0);
 
             if (active.bounciness > 0 && active.ticksSinceStart > 10) {
-                handleBounceX(active, collider);
-                active.nextMove.y = getDeltaS(active.ticksSinceStart) * active.bounciness;
-                active.upwardsForce = true;
+                initBounce(active, collider);
                 active.ticksSinceStart--;
             } else {
                 moveToCollidingObject(active, collider, new Vec2D(0, -1),
@@ -222,14 +222,15 @@ public class Gravity {
                 passive.object.getObjectType().equals(MovableObjectType.ROTATION_BOX)) {
 
             double degCollider = ((RotationBox2D)(passive.object)).getRotationAngleRad();
-            active.ticksSinceStart += 1;
             double degOut = Math.PI + degCollider;
-            active.nextMove = new Vec2D(Math.cos(degOut) * getDeltaS((int)
-                    (active.ticksSinceStart / 1.5)) * -Math.sin(degOut),
-                    Math.sin(degOut) * getDeltaS((int)(active.ticksSinceStart / 1.5))
-                    * -Math.sin(degOut));
+            double outFactor = -Math.sin(degOut);
 
+            active.ticksSinceStart += 1;
+            active.nextMove = new Vec2D(Math.cos(degOut) * getDeltaS((int)
+                    (active.ticksSinceStart / 1.5)) * outFactor,Math.sin(degOut) *
+                    getDeltaS((int)(active.ticksSinceStart / 1.5)) * outFactor);
         }
+
         if (active.nextMove.y == 0) {
             active.ticksSinceStart = 0;
         }
@@ -248,7 +249,7 @@ public class Gravity {
 
         //Not colliding
         if (collisionIndex == -1) {
-            active.nextMove = new Vec2D(active.nextMove.x, getDeltaS(active.ticksSinceStart) * active.bounciness);
+            active.nextMove.y = getDeltaS(active.ticksSinceStart) * active.bounciness * active.currentYFactor;
             active.ticksSinceStart--;
             if (active.ticksSinceStart <= 0) {
                 active.upwardsForce = false;
@@ -266,12 +267,25 @@ public class Gravity {
         }
     }
 
-    private void handleBounceX(GravityObject active, GravityObject collider) {
+    private void initBounce (GravityObject active, GravityObject collider) {
         if (active.object.getObjectType() == MovableObjectType.CIRCLE
                 && collider.object.getObjectType() == MovableObjectType.ROTATION_BOX) {
-            double xMovement = Math.sin(((RotationBox2D)(collider.object)).getRotationAngleRad() + Math.PI);
-            active.nextMove.x = 2 * xMovement * active.bounciness;
-            System.out.println(active.nextMove.x);
+
+            double degCollider = ((RotationBox2D)(collider.object)).getRotationAngleRad();
+            double degOut = degCollider * 2 + Math.PI / 2;
+            Vec2D highestPointInCollider = ((RotationBox2D)(collider.object)).getTopPoint();
+            double direction = active.object.getCenter().x < highestPointInCollider.x ? 1 : 1;
+            double speedUpFactor = 1;
+
+            System.out.println(degOut / Math.PI * direction);
+
+            active.nextMove.x = Math.cos(degOut) * getDeltaS(active.ticksSinceStart) * active.bounciness * direction * speedUpFactor;
+            active.nextMove.y = Math.sin(degOut) * getDeltaS(active.ticksSinceStart) * active.bounciness * speedUpFactor;
+            active.currentYFactor = speedUpFactor;
+            if (0 < degOut && degOut < Math.PI) active.upwardsForce = true;
+        } else {
+            active.nextMove.y = getDeltaS(active.ticksSinceStart) * active.bounciness;
+            active.upwardsForce = true;
         }
     }
 

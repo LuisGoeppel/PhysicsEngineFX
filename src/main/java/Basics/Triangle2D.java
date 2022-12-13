@@ -63,6 +63,12 @@ public class Triangle2D extends Polygon2D {
     }
 
     @Override
+    public void setCenter(Vec2D center) {
+        Vec2D dir = center.sub(getCenter());
+        move(dir);
+    }
+
+    @Override
     public boolean contains(Vec2D P) {
         Triangle2D PAB = new Triangle2D(P, A, B);
         Triangle2D PBC = new Triangle2D(P, B, C);
@@ -99,7 +105,8 @@ public class Triangle2D extends Polygon2D {
 
     @Override
     public Vec2D getCenter() {
-        return new Vec2D(getRight() - getLeft(), getTop() - getBottom());
+        return new Vec2D(getLeft() + (getRight() - getLeft()) / 2,
+                getBottom() + (getTop() - getBottom()) / 2);
     }
 
     @Override
